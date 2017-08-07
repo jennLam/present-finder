@@ -27,6 +27,33 @@ def show_register_form():
 
     return render_template("register.html")
 
+
+@app.route('/register', methods=["POST"])
+def get_register_info():
+    """Get registration form information."""
+
+    fname = request.form.get("fname")
+    lname = request.form.get("lname")
+    uname = request.form.get("uname")
+    email = request.form.get("email")
+    password = request.form.get("password")
+
+    existing_user = User.query.filter_by(username=uname).first()
+
+    if existing_user:
+        new_user = User(fname=fname, lname=lname, username=uname, email=email,
+                        password=password)
+
+        db.session.add(new_user)
+        db.session.commit()
+
+        flash("Account successfully created.")
+        return redirect("/")
+
+    else:
+        flash("Account already exists.")
+        return redirect(request.referrer)
+
 # @app.route('/login')
 # def show_login_form():
 #     """Show login form."""

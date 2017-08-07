@@ -21,14 +21,14 @@ class User(db.Model):
     fname = db.Column(db.String(25), nullable=False)
     lname = db.Column(db.String(25), nullable=False)
     username = db.Column(db.String(50), nullable=False)
-    password = db.Column(db.String(50), nullable=False)
     email = db.Column(db.String(100), nullable=False)
+    password = db.Column(db.String(50), nullable=False)
 
     def __repr__(self):
         """Provide helpful representation when printed."""
 
-        s = "<User user_id=%s fname=%s lname=%s username=%s password=%s email=%s>"
-        return s % (self.human_id, self.fname, self.lname, self.username, self.password, self.email)
+        s = "<User user_id=%s fname=%s lname=%s username=%s email=%s password=%s>"
+        return s % (self.user_id, self.fname, self.lname, self.username, self.email, self.password)
 
 
 class Contact(db.Model):
@@ -75,7 +75,7 @@ class Event(db.Model):
     __tablename__ = "events"
 
     event_id = db.Column(db.Integer, autoincrement=True, nullable=False, primary_key=True)
-    contact_id = db.Column(db.Integer, db.ForeignKey("users.user_id"), nullable=False)
+    contact_id = db.Column(db.Integer, db.ForeignKey("contacts.contact_id"), nullable=False)
     name = db.Column(db.String(50), nullable=False)
     date = db.Column(db.DateTime)
 
@@ -93,7 +93,7 @@ class Status(db.Model):
 
     __tablename__ = "statuses"
 
-    Status_id = db.Column(db.Integer, autoincrement=True, nullable=False, primary_key=True)
+    status_id = db.Column(db.Integer, autoincrement=True, nullable=False, primary_key=True)
     status = db.Column(db.String(50), nullable=False)
 
     def __repr__(self):
@@ -109,7 +109,7 @@ class Present(db.Model):
     __tablename__ = "presents"
 
     present_id = db.Column(db.Integer, autoincrement=True, nullable=False, primary_key=True)
-    event_id = db.Column(db.Integer, db.ForeignKey("contacts.contact_id"), nullable=False)
+    event_id = db.Column(db.Integer, db.ForeignKey("events.event_id"), nullable=False)
     status_id = db.Column(db.Integer, db.ForeignKey("statuses.status_id"), nullable=False)
     name = db.Column(db.String(50), nullable=False)
     url = db.Column(db.String(100))
