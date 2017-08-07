@@ -1,6 +1,7 @@
 from flask import Flask, render_template, redirect, request, flash, session
 from flask_debugtoolbar import DebugToolbarExtension
 from jinja2 import StrictUndefined
+from model import User, Contact
 from model import connect_to_db, db
 
 app = Flask(__name__)
@@ -41,6 +42,10 @@ def get_register_info():
     existing_user = User.query.filter_by(username=uname).first()
 
     if existing_user:
+        flash("Account already exists.")
+        return redirect(request.referrer)
+
+    else:
         new_user = User(fname=fname, lname=lname, username=uname, email=email,
                         password=password)
 
@@ -50,9 +55,6 @@ def get_register_info():
         flash("Account successfully created.")
         return redirect("/")
 
-    else:
-        flash("Account already exists.")
-        return redirect(request.referrer)
 
 # @app.route('/login')
 # def show_login_form():

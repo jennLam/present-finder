@@ -2,15 +2,11 @@
 
 from flask_sqlalchemy import SQLAlchemy
 
-# Here's where we create the idea of our database. We're getting this through
-# the Flask-SQLAlchemy library. On db, we can find the `session`
-# object, where we do most of our interactions (like committing, etc.)
-
 db = SQLAlchemy()
 
 
 ##############################################################################
-# Part 1: Compose ORM
+
 
 class User(db.Model):
     """User model."""
@@ -76,7 +72,7 @@ class Event(db.Model):
 
     event_id = db.Column(db.Integer, autoincrement=True, nullable=False, primary_key=True)
     contact_id = db.Column(db.Integer, db.ForeignKey("contacts.contact_id"), nullable=False)
-    name = db.Column(db.String(50), nullable=False)
+    event_name = db.Column(db.String(50), nullable=False)
     date = db.Column(db.DateTime)
 
     contact = db.relationship("Contact", backref=db.backref("events"))
@@ -84,8 +80,8 @@ class Event(db.Model):
     def __repr__(self):
         """Provide helpful representation when printed."""
 
-        s = "<Event event_id=%s contact_id=%s name=%s date=%s>"
-        return s % (self.event_id, self.contact_id, self.name, self.date)
+        s = "<Event event_id=%s contact_id=%s event_name=%s date=%s>"
+        return s % (self.event_id, self.contact_id, self.event_name, self.date)
 
 
 class Status(db.Model):
@@ -94,13 +90,13 @@ class Status(db.Model):
     __tablename__ = "statuses"
 
     status_id = db.Column(db.Integer, autoincrement=True, nullable=False, primary_key=True)
-    status = db.Column(db.String(50), nullable=False)
+    status_name = db.Column(db.String(50), nullable=False)
 
     def __repr__(self):
         """Provide helpful representation when printed."""
 
-        s = "<Status status_id=%s status=%s>"
-        return s % (self.status_id, self.status)
+        s = "<Status status_id=%s status_name=%s>"
+        return s % (self.status_id, self.status_name)
 
 
 class Present(db.Model):
@@ -111,7 +107,7 @@ class Present(db.Model):
     present_id = db.Column(db.Integer, autoincrement=True, nullable=False, primary_key=True)
     event_id = db.Column(db.Integer, db.ForeignKey("events.event_id"), nullable=False)
     status_id = db.Column(db.Integer, db.ForeignKey("statuses.status_id"), nullable=False)
-    name = db.Column(db.String(50), nullable=False)
+    present_name = db.Column(db.String(50), nullable=False)
     url = db.Column(db.String(100))
     img_url = db.Column(db.String(100))
 
@@ -121,10 +117,9 @@ class Present(db.Model):
     def __repr__(self):
         """Provide helpful representation when printed."""
 
-        s = "<Present present_id=%s event_id=%s status_id=%s name=%s url=%s img_url=%s>"
-        return s % (self.present_id, self.event_id, self.status_id, self.name, self.url, self.img_url)
-
-# End Part 1
+        s = "<Present present_id=%s event_id=%s status_id=%s present_name=%s url=%s img_url=%s>"
+        return s % (self.present_id, self.event_id, self.status_id, self.present_name,
+                    self.url, self.img_url)
 
 
 ##############################################################################
