@@ -17,7 +17,7 @@ class User(db.Model):
 
     __tablename__ = "users"
 
-    user_id = db.Column(db.Integer, nullable=False, primary_key=True)
+    user_id = db.Column(db.Integer, autoincrement=True, nullable=False, primary_key=True)
     fname = db.Column(db.String(25), nullable=False)
     lname = db.Column(db.String(25), nullable=False)
     username = db.Column(db.String(50), nullable=False)
@@ -36,7 +36,7 @@ class Contact(db.Model):
 
     __tablename__ = "contacts"
 
-    contact_id = db.Column(db.Integer, nullable=False, primary_key=True)
+    contact_id = db.Column(db.Integer, autoincrement=True, nullable=False, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("users.user_id"), nullable=False)
     fname = db.Column(db.String(50), nullable=False)
     lname = db.Column(db.String(25), nullable=False)
@@ -55,7 +55,7 @@ class Interest(db.Model):
 
     __tablename__ = "interests"
 
-    interest_id = db.Column(db.Integer, nullable=False, primary_key=True)
+    interest_id = db.Column(db.Integer, autoincrement=True, nullable=False, primary_key=True)
     contact_id = db.Column(db.Integer, db.ForeignKey("contacts.contact_id"), nullable=False)
     name = db.Column(db.String(50), nullable=False)
     intensity = db.Column(db.Integer)
@@ -74,7 +74,7 @@ class Event(db.Model):
 
     __tablename__ = "events"
 
-    event_id = db.Column(db.Integer, nullable=False, primary_key=True)
+    event_id = db.Column(db.Integer, autoincrement=True, nullable=False, primary_key=True)
     contact_id = db.Column(db.Integer, db.ForeignKey("users.user_id"), nullable=False)
     name = db.Column(db.String(50), nullable=False)
     date = db.Column(db.DateTime)
@@ -93,7 +93,7 @@ class Status(db.Model):
 
     __tablename__ = "statuses"
 
-    Status_id = db.Column(db.Integer, nullable=False, primary_key=True)
+    Status_id = db.Column(db.Integer, autoincrement=True, nullable=False, primary_key=True)
     status = db.Column(db.String(50), nullable=False)
 
     def __repr__(self):
@@ -108,7 +108,7 @@ class Present(db.Model):
 
     __tablename__ = "presents"
 
-    present_id = db.Column(db.Integer, nullable=False, primary_key=True)
+    present_id = db.Column(db.Integer, autoincrement=True, nullable=False, primary_key=True)
     event_id = db.Column(db.Integer, db.ForeignKey("contacts.contact_id"), nullable=False)
     status_id = db.Column(db.Integer, db.ForeignKey("statuses.status_id"), nullable=False)
     name = db.Column(db.String(50), nullable=False)
