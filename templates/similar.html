@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Search</h1>
+
+{% for product in products %}
+    
+    <div style="display: inline-block; width: 200px; vertical-align: top;">
+      <form action="/like" method="POST">
+        <input type="hidden" name="like" value="{{ product.asin }}">
+        <input type="submit" value="Like">
+      </form>
+      <a href="/similar?product={{ product.asin }}">
+        <p>{{ product.title }}</p>
+        </a>
+        <img src="{{ product.medium_image_url }}">
+
+    </div>
+  
+{% endfor %}
+
+{% endblock %}

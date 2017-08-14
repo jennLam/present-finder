@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>Hey there {{user.fname}}!</h1>
+
+<h2>Contacts</h2>
+
+<form action="/add-contact" method="POST">
+  First Name: <input type="text" name="fname">
+  Last Name: <input type="text" name="lname">
+  <input type="submit" value="Add">
+</form>
+
+{% for contact in user.contacts %}
+<a href="/contact/{{contact.contact_id}}">{{ contact.fname }} {{ contact.lname }}</a><br/>
+{% endfor %}
+
+<h2>Your Likes</h2>
+{% for product in products %}
+    
+    <div style="display: inline-block; width: 200px; vertical-align: top;">
+      <a href="/similar?product={{ product.present_id }}">
+        <p>{{ product.present_name }}</p>
+        </a>
+        <img src="{{ product.img_url }}">
+
+    </div>
+  
+{% endfor %}
+
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>Interests</h1>
+<h3>Add Interest for {{ contact.fname }} {{ contact.lname }}</h3>
+
+<form action="/add-interest", method="POST">
+  Interest Name: <input type="text" name="interest_name" required>
+  Category:
+  <select name="category">
+    {% for cat in category_list %}
+    <option value="{{ cat }}">{{ cat }}</option>
+    {% endfor %}
+  </select>
+  <input type="hidden" name="contact_id" value="{{ contact.contact_id }}">
+  <input type="submit" value="Add">
+</form>
+
+<h3>Current Interests</h3>
+{% for interest in interests %}
+<a href="/search?name={{interest.name}}&category={{interest.category}}">{{ interest.name }}</a><br/>
+{% endfor %}
+
+{% endblock %}

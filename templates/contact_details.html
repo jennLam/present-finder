@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h1>Contact Details</h1>
+{{ contact.fname }} {{ contact.lname }}
+<h2>Events</h2>
+
+<form action="/add-event" method="POST">
+  Event Name: <input type="text" name="ename">
+  Date: <input type="text" name="date">
+  <input type="hidden" name="contact_id" value="{{ contact.contact_id }}">
+  <input type="submit" value="Add">
+</form>
+
+{% for event in contact.events %}
+{{ event.event_name}} {{event.date}}<br/>
+{% endfor %}
+
+<h2>Interests</h2>
+<form action="/add-interest" method="GET">
+  <input type="hidden" name="contact_id" value="{{ contact.contact_id }}">
+  <input type="hidden" name="stuff" value="stuff">
+  <input type="submit" value="Add Interest">
+</form>
+
+{% for interest in contact.interests %}
+{{ interest.name }} {{interest.intensity}}<br/>
+{% endfor %}
+{% endblock %}

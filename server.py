@@ -1,8 +1,11 @@
 from flask import Flask, render_template, redirect, request, flash, session
 from flask_debugtoolbar import DebugToolbarExtension
 from jinja2 import StrictUndefined
-from model import User, Contact
+from model import User, Contact, Interest, Event, Present, Status
 from model import connect_to_db, db
+from amazon.api import AmazonAPI
+import amazonapi
+# from trying import make_list
 
 app = Flask(__name__)
 
@@ -13,6 +16,17 @@ app.secret_key = "ABC123"
 # silently. This is horrible. Fix this so that, instead, it raises an
 # error.
 app.jinja_env.undefined = StrictUndefined
+
+category_list = ['All', 'Apparel', 'Appliances', 'ArtsAndCrafts', 'Automotive',
+                 'Baby', 'Beauty', 'Blended', 'Books', 'Classical', 'Collectibles',
+                 'DVD', 'DigitalMusic', 'Electronics', 'GiftCards', 'GourmetFood',
+                 'Grocery', 'HealthPersonalCare', 'HomeGarden', 'Industrial',
+                 'Jewelry', 'KindleStore', 'Kitchen', 'LawnAndGarden', 'Marketplace',
+                 'MP3Downloads', 'Magazines', 'Miscellaneous', 'Music', 'MusicTracks',
+                 'MusicalInstruments', 'MobileApps', 'OfficeProducts', 'OutdoorLiving',
+                 'PCHardware', 'PetSupplies', 'Photo', 'Shoes', 'Software', 'SportingGoods',
+                 'Tools', 'Toys', 'UnboxVideo', 'VHS', 'Video', 'VideoGames', 'Watches',
+                 'Wireless', 'WirelessAccessories']
 
 
 @app.route("/")
@@ -77,10 +91,173 @@ def process_login():
         if existing_password == password:
             session["user_id"] = existing_user.user_id
             flash("Login Successful!")
-            return redirect("/")
+            return redirect("/user/" + str(session["user_id"]))
         else:
-            flash("Login Failed.")
+            flash("Incorrect password.")
             return redirect(request.referrer)
+    else:
+        flash("User does not exist.")
+        return redirect(request.referrer)
+
+
+@app.route("/user/<user_id>")
+def show_user_page(user_id):
+    """Show user page."""
+
+    user = User.query.get(user_id)
+    products = Present.query.filter(Present.event_id == None).all()
+
+    return render_template("home.html", user=user, products=products)
+
+
+@app.route("/add-contact", methods=["POST"])
+def add_contact():
+    """Add contact to database."""
+
+    fname = request.form.get("fname")
+    lname = request.form.get("lname")
+    user_id = session["user_id"]
+
+    existing_contact = Contact.query.filter_by(user_id=user_id, fname=fname, lname=lname).first()
+
+    if existing_contact:
+        flash("Contact already exists.")
+        return redirect(request.referrer)
+    else:
+        new_contact = Contact(user_id=user_id, fname=fname, lname=lname)
+        db.session.add(new_contact)
+        db.session.commit()
+        flash("Contact successfully added.")
+        return redirect(request.referrer)
+
+
+@app.route("/contact/<contact_id>")
+def show_contact_details(contact_id):
+    """Show contact page."""
+
+    contact = Contact.query.get(contact_id)
+
+    return render_template("contact_details.html", contact=contact)
+
+
+@app.route("/add-event", methods=["POST"])
+def add_event():
+    """Add event to database."""
+
+    event_name = request.form.get("ename")
+    date = request.form.get("date")
+    contact_id = request.form.get("contact_id")
+
+    existing_event = Event.query.filter_by(event_name=event_name).first()
+
+    if existing_event:
+        flash("event already exists.")
+        return redirect(request.referrer)
+    else:
+        event = Event(contact_id=contact_id, event_name=event_name, date=date)
+        db.session.add(event)
+        db.session.commit()
+        flash("Event successfully added.")
+        return redirect(request.referrer)
+
+
+@app.route("/add-interest", methods=["GET"])
+def show_interest():
+    """Show interest form."""
+
+    contact_id = request.args.get("contact_id")
+
+    contact = Contact.query.get(contact_id)
+
+    interests = contact.interests
+
+    return render_template("interest.html", contact=contact, category_list=category_list,
+                           interests=interests)
+
+
+@app.route("/add-interest", methods=["POST"])
+def add_interest():
+    """Add interests to database."""
+
+    contact_id = request.form.get("contact_id")
+    interest_name = request.form.get("interest_name")
+    category = request.form.get("category")
+
+    existing_interest = Interest.query.filter_by(name=interest_name).first()
+
+    if existing_interest:
+        flash("Interest already exists.")
+        return redirect(request.referrer)
+    else:
+        new_interest = Interest(contact_id=contact_id, name=interest_name,
+                                category=category)
+
+        db.session.add(new_interest)
+        db.session.commit()
+        flash("Interest successfully added.")
+        return redirect(request.referrer)
+
+
+# def test_search():
+
+#     my_list = make_list()
+#     product_list = []
+#     p_list = []
+
+#     for item in my_list:
+
+#         product = test.search(item, "All")
+#         product_list.append(product)
+
+#     for prod in product_list:
+#         for p in prod:
+#             p_list.append(p)
+
+#     return p_list
+
+
+@app.route("/search")
+def search_amazon():
+    """Search Amazon for products."""
+
+    name = request.args.get("name")
+    category = request.args.get("category")
+
+    products = amazonapi.search(name, category)
+
+    return render_template("search.html", products=products)
+
+
+@app.route("/similar")
+def find_similar():
+    """Find similar products."""
+
+    product = request.args.get("product")
+    products = amazonapi.get_similar(product)
+
+    return render_template("similar.html", products=products)
+
+
+@app.route("/like", methods=["POST"])
+def like_product():
+    """Add products the user likes to presents table in database."""
+
+    like = request.form.get("like")
+
+    product = amazonapi.lookup(like)
+
+    existing_product = Present.query.filter_by(present_id=product.asin).first()
+
+    if existing_product:
+        flash("You have already liked this product.")
+    else:
+        new_product = Present(present_id=product.asin, present_name=product.title,
+                              url=product.detail_page_url, img_url=product.medium_image_url)
+
+        db.session.add(new_product)
+        db.session.commit()
+
+    return redirect(request.referrer)
 
 
 @app.route("/logout")
@@ -90,6 +267,7 @@ def process_logout():
     session["user_id"] = ""
     flash("Logout Successful.")
     return redirect("/")
+
 
 if __name__ == "__main__":
     # We have to set debug=True here, since it has to be True at the

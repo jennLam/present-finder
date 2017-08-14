@@ -54,6 +54,7 @@ class Interest(db.Model):
     interest_id = db.Column(db.Integer, autoincrement=True, nullable=False, primary_key=True)
     contact_id = db.Column(db.Integer, db.ForeignKey("contacts.contact_id"), nullable=False)
     name = db.Column(db.String(50), nullable=False)
+    category = db.Column(db.String(50), nullable=False)
     intensity = db.Column(db.Integer)
 
     contact = db.relationship("Contact", backref=db.backref("interests"))
@@ -104,12 +105,12 @@ class Present(db.Model):
 
     __tablename__ = "presents"
 
-    present_id = db.Column(db.Integer, autoincrement=True, nullable=False, primary_key=True)
-    event_id = db.Column(db.Integer, db.ForeignKey("events.event_id"), nullable=False)
-    status_id = db.Column(db.Integer, db.ForeignKey("statuses.status_id"), nullable=False)
+    present_id = db.Column(db.String(20), nullable=False, primary_key=True)
+    event_id = db.Column(db.Integer, db.ForeignKey("events.event_id"))
+    status_id = db.Column(db.Integer, db.ForeignKey("statuses.status_id"))
     present_name = db.Column(db.String(50), nullable=False)
-    url = db.Column(db.String(100))
-    img_url = db.Column(db.String(100))
+    url = db.Column(db.String(200))
+    img_url = db.Column(db.String(150))
 
     event = db.relationship("Event", backref=db.backref("presents"))
     status = db.relationship("Status", backref=db.backref("presents"))
