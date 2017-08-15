@@ -3,7 +3,7 @@
 
 <h1>Contacts</h1>
 {% for contact in user.contacts %}
-{{contact.fname}}<br/>
+{{ contact.fname }} {{ contact.lname }}<br/>
 {% endfor %}
 
 {% endblock %}

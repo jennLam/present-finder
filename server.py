@@ -183,7 +183,8 @@ def add_event():
     date = request.form.get("date")
     contact_id = request.form.get("contact_id")
 
-    existing_event = Event.query.filter_by(event_name=event_name).first()
+    existing_event = Event.query.filter_by(contact_id=contact_id,
+                                           event_name=event_name).first()
 
     if existing_event:
         flash("event already exists.")
