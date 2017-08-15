@@ -1,13 +1,29 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>Search</h1>
 
-{% for product in products %}
+<h1>Event Details</h1>
+{{ event.event_id}}
+
+<h2>Your Likes</h2>
+{% for prod in prods %}
+    
+    <div style="display: inline-block; width: 200px; vertical-align: top;">
+      <a href="/similar?product={{ prod.present_id }}">
+        <p>{{ prod.present_name }}</p>
+        </a>
+        <img src="{{ prod.img_url }}">
+
+    </div>
+  
+{% endfor %}
+
+<h2>Search Results</h2>
+{% for product in product_list %}
     
     <div style="display: inline-block; width: 200px; vertical-align: top;">
       <form action="/like" method="POST">
         <input type="hidden" name="like" value="{{ product.asin }}">
-        <!-- <input type="hidden" name="event_id"> -->
+        <input type="hidden" name="event_id" value="{{ event.event_id}}">
         <input type="submit" value="Like">
       </form>
       <a href="/similar?product={{ product.asin }}">
@@ -18,5 +34,6 @@
     </div>
   
 {% endfor %}
+
 
 {% endblock %}

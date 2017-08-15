@@ -1,31 +1,56 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h1>Hey there {{user.fname}}!</h1>
-
-<h2>Contacts</h2>
-
-<form action="/add-contact" method="POST">
-  First Name: <input type="text" name="fname">
-  Last Name: <input type="text" name="lname">
-  <input type="submit" value="Add">
-</form>
-
-{% for contact in user.contacts %}
-<a href="/contact/{{contact.contact_id}}">{{ contact.fname }} {{ contact.lname }}</a><br/>
-{% endfor %}
-
-<h2>Your Likes</h2>
-{% for product in products %}
+<div class="sidebar" style="width:25%;float:right;">
+  <h3><a href="/add-event">Upcoming Events</a></h3><br/>
+  {% for event in current_events %}
+  {{event.date.strftime("%m-%d-%Y")}}<br/>
+  {{ event.contact.fname}}'s {{ event.event_name }}<br/><br/>
+  {% endfor %}
+  <h3><a href="#">Contacts</a>
+  <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">
+    +</button></h3>
+  <br/>
+  {% for contact in user.contacts %}
+    <a href="/contact/{{contact.contact_id}}">{{ contact.fname }} {{ contact.lname }}</a><br/>
+  {% endfor %}
+  <a href="#"><h3>Likes</h3></a><br/>
+  {% for product in products %}
     
     <div style="display: inline-block; width: 200px; vertical-align: top;">
       <a href="/similar?product={{ product.present_id }}">
         <p>{{ product.present_name }}</p>
-        </a>
-        <img src="{{ product.img_url }}">
-
+      </a>
+      <img src="{{ product.img_url }}">
     </div>
   
-{% endfor %}
+  {% endfor %}
+</div>
+
+<div id="myModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Add Contact</h4>
+      </div>
+      <div class="modal-body">
+        <form action="/add-contact" method="POST">
+  First Name: <input type="text" name="fname">
+  Last Name: <input type="text" name="lname">
+  <input type="submit" value="Add">
+</form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+
 
 {% endblock %}

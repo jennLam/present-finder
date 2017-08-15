@@ -3,7 +3,9 @@ from flask_debugtoolbar import DebugToolbarExtension
 from jinja2 import StrictUndefined
 from model import User, Contact, Interest, Event, Present, Status
 from model import connect_to_db, db
-from amazon.api import AmazonAPI
+from datetime import datetime
+from sqlalchemy import extract
+# from amazon.api import AmazonAPI
 import amazonapi
 # from trying import make_list
 
@@ -90,6 +92,7 @@ def process_login():
         existing_password = existing_user.password
         if existing_password == password:
             session["user_id"] = existing_user.user_id
+            session["user_name"] = existing_user.fname
             flash("Login Successful!")
             return redirect("/user/" + str(session["user_id"]))
         else:
@@ -107,7 +110,15 @@ def show_user_page(user_id):
     user = User.query.get(user_id)
     products = Present.query.filter(Present.event_id == None).all()
 
-    return render_template("home.html", user=user, products=products)
+    current_datetime = datetime.now()
+    current_month = current_datetime.month
+    current_year = current_datetime.year
+
+    current_events = Event.query.filter(extract("month", Event.date) == current_month,
+                                        extract("year", Event.date) == current_year)
+
+    return render_template("home.html", user=user, products=products,
+                           current_events=current_events)
 
 
 @app.route("/add-contact", methods=["POST"])
@@ -135,9 +146,18 @@ def add_contact():
 def show_contact_details(contact_id):
     """Show contact page."""
 
+    user_id = session["user_id"]
     contact = Contact.query.get(contact_id)
+    user = User.query.get(user_id)
 
-    return render_template("contact_details.html", contact=contact)
+    return render_template("contact_details.html", contact=contact, user=user)
+
+
+# @app.route("/add-event", methods=["GET"])
+# def show_event_form():
+#     """Show form to add event."""
+
+#     return render_template("add_event.html")
 
 
 @app.route("/add-event", methods=["POST"])
@@ -159,6 +179,26 @@ def add_event():
         db.session.commit()
         flash("Event successfully added.")
         return redirect(request.referrer)
+
+
+@app.route("/event/<event_id>")
+def show_event_details(event_id):
+    """Show event details."""
+
+    event = Event.query.get(event_id)
+    interests = event.contact.interests
+    product_list = []
+
+    prods= Present.query.filter(Present.event_id == event_id).all()
+
+    for interest in interests:
+        products = amazonapi.search(interest.name, interest.category)
+        for product in products:
+
+            product_list.append(product)
+
+    return render_template("event_details.html", event=event,
+                           product_list=product_list, prods=prods)
 
 
 @app.route("/add-interest", methods=["GET"])
@@ -243,16 +283,19 @@ def like_product():
     """Add products the user likes to presents table in database."""
 
     like = request.form.get("like")
+    event_id = request.form.get("event_id")
+    print event_id
 
     product = amazonapi.lookup(like)
 
-    existing_product = Present.query.filter_by(present_id=product.asin).first()
+    existing_product = Present.query.filter_by(present_id=product.asin, event_id=event_id).first()
 
     if existing_product:
         flash("You have already liked this product.")
     else:
-        new_product = Present(present_id=product.asin, present_name=product.title,
-                              url=product.detail_page_url, img_url=product.medium_image_url)
+        new_product = Present(present_id=product.asin, event_id=event_id,
+                              present_name=product.title, url=product.detail_page_url,
+                              img_url=product.medium_image_url)
 
         db.session.add(new_product)
         db.session.commit()
@@ -265,6 +308,7 @@ def process_logout():
     """Process logout."""
 
     session["user_id"] = ""
+    session["user_name"] = ""
     flash("Logout Successful.")
     return redirect("/")
 

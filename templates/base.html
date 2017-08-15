@@ -3,6 +3,12 @@
   <head>
     <title>Present Finder</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+
+      <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+
   </head>
   <body>
 
@@ -34,7 +40,11 @@
       </ul>
       
       <ul class="nav navbar-nav navbar-right">
-        <li><a href="/register">Register</a></li>
+        {% if session.get("user_name") %}
+          <li><a href="#">Welcome {{ session["user_name"] }}!</a></li>
+        {% else %}
+          <li><a href="/register">Register</a></li>
+        {% endif %}
 
         {% if session.get("user_id") %}
           <li><a href="/logout">Logout</a></li>
@@ -48,6 +58,13 @@
 </nav>
 
 
+
+
+
+
+
+
+
     {% for message in get_flashed_messages() %}
       {{ message }}
     {% endfor %}
@@ -55,9 +72,11 @@
     {% block content %}
       put your content here
     {% endblock %}
+
+
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script> -->
     <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="js/bootstrap.min.js"></script>
+    <!-- <script src="js/bootstrap.min.js"></script> -->
   </body>
 </html>

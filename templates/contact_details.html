@@ -13,7 +13,7 @@
 </form>
 
 {% for event in contact.events %}
-{{ event.event_name}} {{event.date}}<br/>
+<a href="/event/{{ event.event_id }}">{{ event.event_name}} {{event.date.strftime("%m-%d-%Y")}}</a><br/>
 {% endfor %}
 
 <h2>Interests</h2>
