@@ -110,12 +110,17 @@ def show_user_page(user_id):
     user = User.query.get(user_id)
     products = Present.query.filter(Present.event_id == None).all()
 
+    contacts = db.session.query(Contact.contact_id).filter_by(user_id=user_id).all()
+
+    # events = Event.query.filter(Event.contact_id.in_(contacts)).all()
+
     current_datetime = datetime.now()
     current_month = current_datetime.month
     current_year = current_datetime.year
 
-    current_events = Event.query.filter(extract("month", Event.date) == current_month,
-                                        extract("year", Event.date) == current_year)
+    current_events = Event.query.filter(Event.contact_id.in_(contacts),
+                                        extract("month", Event.date) == current_month,
+                                        extract("year", Event.date) == current_year).all()
 
     return render_template("home.html", user=user, products=products,
                            current_events=current_events)
@@ -140,6 +145,16 @@ def add_contact():
         db.session.commit()
         flash("Contact successfully added.")
         return redirect(request.referrer)
+
+
+@app.route("/contact")
+def show_contacts():
+    """Show a list of contacts."""
+
+    user_id = session["user_id"]
+    user = User.query.get(user_id)
+
+    return render_template("contacts.html", user=user)
 
 
 @app.route("/contact/<contact_id>")
@@ -179,6 +194,17 @@ def add_event():
         db.session.commit()
         flash("Event successfully added.")
         return redirect(request.referrer)
+
+
+@app.route("/event")
+def show_events():
+    """Show a list of events."""
+
+    user_id = session.get("user_id")
+    contacts = db.session.query(Contact.contact_id).filter_by(user_id=user_id).all()
+    events = Event.query.filter(Event.contact_id.in_(contacts)).all()
+
+    return render_template("events.html", events=events)
 
 
 @app.route("/event/<event_id>")

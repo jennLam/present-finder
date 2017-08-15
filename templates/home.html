@@ -2,12 +2,12 @@
 {% block content %}
 
 <div class="sidebar" style="width:25%;float:right;">
-  <h3><a href="/add-event">Upcoming Events</a></h3><br/>
+  <h3><a href="/event">Upcoming Events</a></h3><br/>
   {% for event in current_events %}
   {{event.date.strftime("%m-%d-%Y")}}<br/>
   {{ event.contact.fname}}'s {{ event.event_name }}<br/><br/>
   {% endfor %}
-  <h3><a href="#">Contacts</a>
+  <h3><a href="/contact">Contacts</a>
   <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">
     +</button></h3>
   <br/>
