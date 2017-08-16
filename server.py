@@ -1,4 +1,4 @@
-from flask import Flask, render_template, redirect, request, flash, session
+from flask import Flask, render_template, redirect, request, flash, session, g
 from flask_debugtoolbar import DebugToolbarExtension
 from jinja2 import StrictUndefined
 from model import User, Contact, Interest, Event, Present, Status
@@ -29,6 +29,15 @@ category_list = ['All', 'Apparel', 'Appliances', 'ArtsAndCrafts', 'Automotive',
                  'PCHardware', 'PetSupplies', 'Photo', 'Shoes', 'Software', 'SportingGoods',
                  'Tools', 'Toys', 'UnboxVideo', 'VHS', 'Video', 'VideoGames', 'Watches',
                  'Wireless', 'WirelessAccessories']
+
+
+@app.before_request
+def before_request():
+    """Run before each route."""
+
+    user_id = session.get("user_id")
+    if user_id:
+        g.current_user = User.query.get(user_id)
 
 
 @app.route("/")

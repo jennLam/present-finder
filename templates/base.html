@@ -30,7 +30,19 @@
       <ul class="nav navbar-nav">
         {% if session.get("user_id") %}
 
-        <li class="active"><a href="/user/{{ session['user_id'] }}">Home<span class="sr-only">(current)</span></a></li>
+
+        <div class="dropdown">
+        <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Menu
+        <span class="caret"></span></button>
+        <ul class="dropdown-menu">
+          <li class="active"><a href="/user/{{ session['user_id'] }}">Home<span class="sr-only">(current)</span></a></li>
+          <li><a href="/event">Events</a></li>
+          <li><a href="/contact">Contacts</a></li>
+          <li><a href="#">Likes</a></li>
+        </ul>
+      </div>
+
+        
 
         {% else %}
 
