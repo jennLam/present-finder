@@ -1,13 +1,16 @@
-from flask import Flask, render_template, redirect, request, flash, session, g
+from flask import Flask, render_template, redirect, request, flash, session, g, url_for, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
 from jinja2 import StrictUndefined
 from model import User, Contact, Interest, Event, Present, Status
 from model import connect_to_db, db
 from datetime import datetime
 from sqlalchemy import extract
+from functools import wraps
+import json
 # from amazon.api import AmazonAPI
 import amazonapi
 # from trying import make_list
+from notification import hello
 
 app = Flask(__name__)
 
@@ -35,9 +38,21 @@ category_list = ['All', 'Apparel', 'Appliances', 'ArtsAndCrafts', 'Automotive',
 def before_request():
     """Run before each route."""
 
-    user_id = session.get("user_id")
-    if user_id:
-        g.current_user = User.query.get(user_id)
+    g.user_id = session.get("user_id")
+    if g.user_id:
+        g.current_user = User.query.get(g.user_id)
+
+
+def login_required(f):
+    @wraps(f)
+    def wrap(*args, **kwargs):
+        if g.user_id:
+            return f(*args, **kwargs)
+        else:
+            flash("You need to login first")
+            return redirect(url_for('show_login_form'))
+
+    return wrap
 
 
 @app.route("/")
@@ -113,10 +128,11 @@ def process_login():
 
 
 @app.route("/user/<user_id>")
+@login_required
 def show_user_page(user_id):
     """Show user page."""
 
-    user = User.query.get(user_id)
+    # user = User.query.get(user_id)
     products = Present.query.filter(Present.event_id == None).all()
 
     contacts = db.session.query(Contact.contact_id).filter_by(user_id=user_id).all()
@@ -131,8 +147,8 @@ def show_user_page(user_id):
                                         extract("month", Event.date) == current_month,
                                         extract("year", Event.date) == current_year).all()
 
-    return render_template("home.html", user=user, products=products,
-                           current_events=current_events)
+    return render_template("home.html", user=g.current_user, products=products,
+                           current_events=current_events, category_list=category_list)
 
 
 @app.route("/add-contact", methods=["POST"])
@@ -141,15 +157,16 @@ def add_contact():
 
     fname = request.form.get("fname")
     lname = request.form.get("lname")
-    user_id = session["user_id"]
+    # user_id = session["user_id"]
 
-    existing_contact = Contact.query.filter_by(user_id=user_id, fname=fname, lname=lname).first()
+    existing_contact = Contact.query.filter_by(user_id=g.user_id, fname=fname,
+                                               lname=lname).first()
 
     if existing_contact:
         flash("Contact already exists.")
         return redirect(request.referrer)
     else:
-        new_contact = Contact(user_id=user_id, fname=fname, lname=lname)
+        new_contact = Contact(user_id=g.user_id, fname=fname, lname=lname)
         db.session.add(new_contact)
         db.session.commit()
         flash("Contact successfully added.")
@@ -157,24 +174,26 @@ def add_contact():
 
 
 @app.route("/contact")
+@login_required
 def show_contacts():
     """Show a list of contacts."""
 
-    user_id = session["user_id"]
-    user = User.query.get(user_id)
+    # user_id = session["user_id"]
+    # user = User.query.get(user_id)
 
-    return render_template("contacts.html", user=user)
+    return render_template("contacts.html", user=g.current_user)
 
 
 @app.route("/contact/<contact_id>")
 def show_contact_details(contact_id):
     """Show contact page."""
 
-    user_id = session["user_id"]
+    # user_id = session["user_id"]
     contact = Contact.query.get(contact_id)
-    user = User.query.get(user_id)
+    # user = User.query.get(user_id)
 
-    return render_template("contact_details.html", contact=contact, user=user)
+    return render_template("contact_details.html", contact=contact,
+                           user=g.current_user)
 
 
 # @app.route("/add-event", methods=["GET"])
@@ -207,6 +226,7 @@ def add_event():
 
 
 @app.route("/event")
+@login_required
 def show_events():
     """Show a list of events."""
 
@@ -225,7 +245,7 @@ def show_event_details(event_id):
     interests = event.contact.interests
     product_list = []
 
-    prods= Present.query.filter(Present.event_id == event_id).all()
+    prods = Present.query.filter(Present.event_id == event_id).all()
 
     for interest in interests:
         products = amazonapi.search(interest.name, interest.category)
@@ -291,6 +311,50 @@ def add_interest():
 
 #     return p_list
 
+@app.route("/search2")
+def search2():
+    """Test search."""
+
+    return render_template("search2.html", category_list=category_list)
+
+
+
+
+@app.route("/search.json")
+def search_stuff():
+
+    name = request.args.get("text")
+    category = request.args.get("cat")
+
+    products = amazonapi.search(name, category)
+
+    product_list = []
+
+    for product in products:
+        # prod_dict = product.get_attributes(["Title"])
+
+        prod_dict = {"id": product.asin, "title": product.title,
+                     "url": product.detail_page_url, "img_url": product.medium_image_url}
+
+        product_list.append(prod_dict)
+
+    return jsonify({'data': product_list, "error": None})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 @app.route("/search")
 def search_amazon():
@@ -340,6 +404,7 @@ def like_product():
 
 
 @app.route("/logout")
+@login_required
 def process_logout():
     """Process logout."""
 

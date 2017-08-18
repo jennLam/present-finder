@@ -2,6 +2,16 @@
 {% block content %}
 
 <h1>Events</h1>
+
+<form>
+  Set a one week reminder.
+  <input type="hidden" name="reminder" value=True>
+  <input type="submit" value="Submit">
+</form>
+<br/><br/>
+
+
+
 {% for event in events %}
 {{ event.date }}<br/>
 {{event.contact.fname}}'s {{ event.event_name }}<br/><br/>
