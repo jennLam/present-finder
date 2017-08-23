@@ -1,16 +1,13 @@
 from flask import Flask, render_template, redirect, request, flash, session, g, url_for, jsonify
 from flask_debugtoolbar import DebugToolbarExtension
 from jinja2 import StrictUndefined
-from model import User, Contact, Interest, Event, Present, Status
+from model import User, Contact, Interest, Intensity, Event, Present, PresentEvent, Status
 from model import connect_to_db, db
 from datetime import datetime
 from sqlalchemy import extract
 from functools import wraps
 import json
-# from amazon.api import AmazonAPI
 import amazonapi
-# from trying import make_list
-from notification import hello
 
 app = Flask(__name__)
 
@@ -78,6 +75,7 @@ def process_register_info():
     uname = request.form.get("uname")
     email = request.form.get("email")
     password = request.form.get("password")
+    notification = request.form.get("notification")
 
     existing_user = User.query.filter_by(username=uname).first()
 
@@ -87,7 +85,7 @@ def process_register_info():
 
     else:
         new_user = User(fname=fname, lname=lname, username=uname, email=email,
-                        password=password)
+                        password=password, notification=notification)
 
         db.session.add(new_user)
         db.session.commit()
@@ -133,7 +131,7 @@ def show_user_page(user_id):
     """Show user page."""
 
     # user = User.query.get(user_id)
-    products = Present.query.filter(Present.event_id == None).all()
+    products = Present.query.all()
 
     contacts = db.session.query(Contact.contact_id).filter_by(user_id=user_id).all()
 
@@ -157,7 +155,6 @@ def add_contact():
 
     fname = request.form.get("fname")
     lname = request.form.get("lname")
-    # user_id = session["user_id"]
 
     existing_contact = Contact.query.filter_by(user_id=g.user_id, fname=fname,
                                                lname=lname).first()
@@ -178,9 +175,6 @@ def add_contact():
 def show_contacts():
     """Show a list of contacts."""
 
-    # user_id = session["user_id"]
-    # user = User.query.get(user_id)
-
     return render_template("contacts.html", user=g.current_user)
 
 
@@ -193,14 +187,7 @@ def show_contact_details(contact_id):
     # user = User.query.get(user_id)
 
     return render_template("contact_details.html", contact=contact,
-                           user=g.current_user)
-
-
-# @app.route("/add-event", methods=["GET"])
-# def show_event_form():
-#     """Show form to add event."""
-
-#     return render_template("add_event.html")
+                           user=g.current_user, category_list=category_list)
 
 
 @app.route("/add-event", methods=["POST"])
@@ -225,16 +212,46 @@ def add_event():
         return redirect(request.referrer)
 
 
+@app.route("/edit-event", methods=["POST"])
+def edit_event():
+    """Edit event in database."""
+
+    event_name = request.form.get("ename")
+    date = request.form.get("date")
+    event_id = request.form.get("event_id")
+
+    existing_event = Event.query.filter_by(event_id=event_id).first()
+
+    existing_event.event_name = event_name
+    existing_event.date = date
+
+    db.session.commit()
+    flash("Event updated.")
+    return redirect(request.referrer)
+
+
 @app.route("/event")
 @login_required
 def show_events():
     """Show a list of events."""
 
-    user_id = session.get("user_id")
-    contacts = db.session.query(Contact.contact_id).filter_by(user_id=user_id).all()
-    events = Event.query.filter(Event.contact_id.in_(contacts)).all()
+    return render_template("events.html", events=g.current_user.events)
 
-    return render_template("events.html", events=events)
+
+@app.route("/notification", methods=["POST"])
+def set_notification():
+    reminder = request.form.get("reminder")
+
+    for contact in g.current_user.contacts:
+        for event in contact.events:
+            event.notification = reminder
+
+    db.session.commit()
+
+    for contact in g.current_user.contacts:
+        print contact.events
+
+    return redirect(request.referrer)
 
 
 @app.route("/event/<event_id>")
@@ -245,16 +262,32 @@ def show_event_details(event_id):
     interests = event.contact.interests
     product_list = []
 
-    prods = Present.query.filter(Present.event_id == event_id).all()
+    presents = db.session.query(Present,
+                                Event.event_id,
+                                Status.status_name).join(PresentEvent).join(Event).join(Status).filter(Event.event_id == event_id)
+
+    selected = presents.filter(Status.status_name == "selected").all()
+    past = presents.filter(Status.status_name == "past").all()
+    bookmarked = presents.filter(Status.status_name == "bookmarked").all()
+
+    # presents = Present.query.filter_by(presentevent_id == event_id)
+
+    # selected = presents.filter_by(status_name="selected").all()
+
+    # past = presents.filter_by(status_name="past").all()
+
+    # bookmarked = presents.filter_by(status_name="bookmarked").all()
 
     for interest in interests:
-        products = amazonapi.search(interest.name, interest.category)
+        products = amazonapi.search_limit(5, interest.name, interest.category)
+
         for product in products:
 
             product_list.append(product)
 
     return render_template("event_details.html", event=event,
-                           product_list=product_list, prods=prods)
+                           product_list=product_list, selected=selected, past=past,
+                           bookmarked=bookmarked)
 
 
 @app.route("/add-interest", methods=["GET"])
@@ -265,7 +298,7 @@ def show_interest():
 
     contact = Contact.query.get(contact_id)
 
-    interests = contact.interests
+    interests = contact.intensities
 
     return render_template("interest.html", contact=contact, category_list=category_list,
                            interests=interests)
@@ -278,46 +311,43 @@ def add_interest():
     contact_id = request.form.get("contact_id")
     interest_name = request.form.get("interest_name")
     category = request.form.get("category")
+    amount = request.form.get("amount")
 
-    existing_interest = Interest.query.filter_by(name=interest_name).first()
+    existing_interest = Interest.query.filter_by(name=interest_name,
+                                                 category=category).first()
 
     if existing_interest:
-        flash("Interest already exists.")
-        return redirect(request.referrer)
+        existing_intensity = Intensity.query.filter_by(contact_id=contact_id,
+                                                       interest_id=existing_interest.interest_id,
+                                                       amount=amount).first()
+        if existing_intensity:
+            flash("Interest already exists.")
+            return redirect(request.referrer)
+        else:
+            new_intensity = Intensity(contact_id=contact_id,
+                                      interest_id=existing_interest.interest_id,
+                                      amount=amount)
+            db.session.add(new_intensity)
+            db.session.commit()
+            flash("Interest successfully added.")
+            return redirect(request.referrer)
     else:
-        new_interest = Interest(contact_id=contact_id, name=interest_name,
-                                category=category)
-
+        new_interest = Interest(name=interest_name, category=category)
         db.session.add(new_interest)
+        db.session.commit()
+        new_intensity = Intensity(contact_id=contact_id,
+                                  interest_id=new_interest.interest_id, amount=True)
+        db.session.add(new_intensity)
         db.session.commit()
         flash("Interest successfully added.")
         return redirect(request.referrer)
 
-
-# def test_search():
-
-#     my_list = make_list()
-#     product_list = []
-#     p_list = []
-
-#     for item in my_list:
-
-#         product = test.search(item, "All")
-#         product_list.append(product)
-
-#     for prod in product_list:
-#         for p in prod:
-#             p_list.append(p)
-
-#     return p_list
 
 @app.route("/search2")
 def search2():
     """Test search."""
 
     return render_template("search2.html", category_list=category_list)
-
-
 
 
 @app.route("/search.json")
@@ -339,20 +369,6 @@ def search_stuff():
         product_list.append(prod_dict)
 
     return jsonify({'data': product_list, "error": None})
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -400,7 +416,7 @@ def like_product():
         db.session.add(new_product)
         db.session.commit()
 
-    return redirect(request.referrer)
+    return redirect(request.referrer) 
 
 
 @app.route("/logout")

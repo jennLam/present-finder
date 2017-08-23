@@ -18,7 +18,7 @@
 
 <h3>Current Interests</h3>
 {% for interest in interests %}
-<a href="/search?name={{interest.name}}&category={{interest.category}}">{{ interest.name }}</a><br/>
+<a href="/search?name={{interest.interest.name}}&category={{interest.interest.category}}">{{ interest.interest.name }}</a><br/>
 {% endfor %}
 
 {% endblock %}

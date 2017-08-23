@@ -1,23 +1,54 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h1>Event Details</h1>
-{{ event.event_id}}
+<h2>Event Details <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#editEvent">
+    Edit Event</button></h2>
+<a href="/contact/{{ event.contact.contact_id }}">{{ event.contact.fname }} {{ event.contact.lname }}'s</a> {{ event.event_name }} {{event.date.strftime("- %A, %B %d, %Y")}}
 
-<h2>Your Likes</h2>
-{% for prod in prods %}
+<h3>Selected Presents</h3>
+
+{% for present in selected %}
     
     <div style="display: inline-block; width: 200px; vertical-align: top;">
-      <a href="/similar?product={{ prod.present_id }}">
-        <p>{{ prod.present_name }}</p>
+      <a href="/similar?product={{ present.Present.present_id }}">
+        <p>{{ present.Present.present_name }}</p>
         </a>
-        <img src="{{ prod.img_url }}">
+        <img src="{{ present.Present.img_url }}">
 
     </div>
   
 {% endfor %}
 
-<h2>Search Results</h2>
+<h3>Past Presents</h3>
+
+{% for present in past %}
+    
+    <div style="display: inline-block; width: 200px; vertical-align: top;">
+      <a href="/similar?product={{ present.Present.present_id }}">
+        <p>{{ present.Present.present_name }}</p>
+        </a>
+        <img src="{{ present.Present.img_url }}">
+
+    </div>
+
+{% endfor %}
+
+<h3>Bookmarked Presents</h3>
+
+{% for present in bookmarked %}
+    
+    <div style="display: inline-block; width: 200px; vertical-align: top;">
+      <a href="/similar?product={{ present.Present.present_id }}">
+        <p>{{ present.present_name }}</p>
+        </a>
+        <img src="{{ present.Present.img_url }}">
+
+    </div>
+  
+{% endfor %}
+
+<h3>Suggested Presents</h3>
+
 {% for product in product_list %}
     
     <div style="display: inline-block; width: 200px; vertical-align: top;">
@@ -34,6 +65,34 @@
     </div>
   
 {% endfor %}
+
+
+
+<div id="editEvent" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Edit Event For {{ event.contact.fname }} {{ event.contact.lname }}</h4>
+      </div>
+      <div class="modal-body">
+        <form action="/edit-event" method="POST">
+          
+          Event Name: <input type="text" name="ename" value="{{ event.event_name }}"><br/>
+          Date: <input type="text" name="date" value="{{ event.date }}"><br/>
+          <input type="hidden" name="event_id" value="{{ event.event_id }}">
+          <input type="submit" value="Update">
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+
+  </div>
+</div>
 
 
 {% endblock %}

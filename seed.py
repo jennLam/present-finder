@@ -1,7 +1,7 @@
 """Utility file to seed presents database."""
 
 from sqlalchemy import func
-from model import User, Contact, Interest, Event
+from model import User, Contact, Interest, Event, Present, Intensity, Status
 from model import connect_to_db, db
 from server import app
 from datetime import datetime
@@ -17,10 +17,10 @@ def load_users():
     # Read user_data file and insert datat
     for line in open("seed_data/user_data"):
         line = line.rstrip()
-        user_id, fname, lname, username, email, password = line.split(",")
+        user_id, fname, lname, username, email, password, notification = line.split(",")
 
         user = User(user_id=user_id, fname=fname, lname=lname, username=username,
-                    email=email, password=password)
+                    email=email, password=password, notification=notification)
 
         # We need to add to the session or it won't be stored
         db.session.add(user)
@@ -82,6 +82,20 @@ def load_events():
     db.session.commit()
 
 
+def load_statuses():
+    """Load statuses from status_data to database."""
+
+    for line in open("seed_data/status_data"):
+        line = line.rstrip()
+        status_name = line
+
+        status = Status(status_name=status_name)
+
+        db.session.add(status)
+
+    db.session.commit()
+
+
 def set_val_user_id():
     """Set value for the next user_id after seeding database"""
 
@@ -132,6 +146,7 @@ if __name__ == "__main__":
     load_contacts()
     # load_interests()
     load_events()
+    load_statuses()
     set_val_user_id()
     set_val_contact_id()
     set_val_event_id()
