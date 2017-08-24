@@ -131,7 +131,7 @@ def show_user_page(user_id):
     """Show user page."""
 
     # user = User.query.get(user_id)
-    products = Present.query.all()
+    products = Present.query.filter_by(user_id=user_id).all()
 
     contacts = db.session.query(Contact.contact_id).filter_by(user_id=user_id).all()
 
@@ -270,16 +270,8 @@ def show_event_details(event_id):
     past = presents.filter(Status.status_name == "past").all()
     bookmarked = presents.filter(Status.status_name == "bookmarked").all()
 
-    # presents = Present.query.filter_by(presentevent_id == event_id)
-
-    # selected = presents.filter_by(status_name="selected").all()
-
-    # past = presents.filter_by(status_name="past").all()
-
-    # bookmarked = presents.filter_by(status_name="bookmarked").all()
-
     for interest in interests:
-        products = amazonapi.search_limit(5, interest.name, interest.category)
+        products = amazonapi.search_limit(10, interest.name, interest.category)
 
         for product in products:
 
@@ -290,18 +282,18 @@ def show_event_details(event_id):
                            bookmarked=bookmarked)
 
 
-@app.route("/add-interest", methods=["GET"])
-def show_interest():
-    """Show interest form."""
+# @app.route("/add-interest", methods=["GET"])
+# def show_interest():
+#     """Show interest form."""
 
-    contact_id = request.args.get("contact_id")
+#     contact_id = request.args.get("contact_id")
 
-    contact = Contact.query.get(contact_id)
+#     contact = Contact.query.get(contact_id)
 
-    interests = contact.intensities
+#     interests = contact.intensities
 
-    return render_template("interest.html", contact=contact, category_list=category_list,
-                           interests=interests)
+#     return render_template("interest.html", contact=contact, category_list=category_list,
+#                            interests=interests)
 
 
 @app.route("/add-interest", methods=["POST"])
@@ -343,6 +335,29 @@ def add_interest():
         return redirect(request.referrer)
 
 
+@app.route("/remove-interest", methods=["POST"])
+def remove_interest():
+    """Remove interest."""
+
+    contact_id = request.form.get("contact_id")
+    interest_id = request.form.get("interest_id")
+
+    # intensity = Intensity.query.filter_by(contact_id=contact_id, interest_id=interest_id)
+
+    # if intensity.first():
+    #     intensity.delete()
+    #     db.session.commit()
+    #     flash("Interest removed.")
+
+    # else:
+    #     flash("Interest does not exist.")
+
+    Intensity.query.filter_by(contact_id=contact_id, interest_id=interest_id).delete()
+    db.session.commit()
+
+    return redirect(request.referrer)
+
+
 @app.route("/search2")
 def search2():
     """Test search."""
@@ -358,6 +373,24 @@ def search_stuff():
 
     products = amazonapi.search(name, category)
 
+    return get_json(products)
+
+    # product_list = []
+
+    # for product in products:
+    #     # prod_dict = product.get_attributes(["Title"])
+
+    #     prod_dict = {"id": product.asin, "title": product.title,
+    #                  "url": product.detail_page_url, "img_url": product.medium_image_url}
+
+    #     product_list.append(prod_dict)
+
+    # return jsonify({'data': product_list, "error": None})
+
+
+def get_json(products):
+    """Return json."""
+
     product_list = []
 
     for product in products:
@@ -369,6 +402,7 @@ def search_stuff():
         product_list.append(prod_dict)
 
     return jsonify({'data': product_list, "error": None})
+
 
 
 
@@ -416,7 +450,45 @@ def like_product():
         db.session.add(new_product)
         db.session.commit()
 
-    return redirect(request.referrer) 
+    return redirect(request.referrer)
+
+
+@app.route("/bookmark", methods=["POST"])
+def bookmark_product():
+    """Add products the user bookmarks to presents table in database."""
+
+    bookmark = request.form.get("bookmark")
+    event_id = request.form.get("event_id")
+    # print event_id
+
+    product = amazonapi.lookup(bookmark)
+
+    # existing_product = Present.query.filter_by(present_id=product.asin, event_id=event_id).first()
+
+    existing_product = db.session.query(Present.present_id,
+                                        Event.event_id).join(PresentEvent).join(Event).filter(Present.present_id == product.asin, Event.event_id == event_id).first()
+
+    if existing_product:
+        flash("You have already liked this product.")
+    else:
+        status_id = db.session.query(Status.status_id).filter(Status.status_name == "bookmarked").first()
+        new_product = Present(present_id=product.asin, status_id=status_id, present_name=product.title,
+                              url=product.detail_page_url, img_url=product.medium_image_url)
+
+        db.session.add(new_product)
+        db.session.commit()
+
+        new_presentevent = PresentEvent(present_id=product.asin, event_id=event_id)
+
+        db.session.add(new_presentevent)
+        db.session.commit()
+
+    return redirect(request.referrer)
+
+
+@app.route("/product-details")
+def show_product():
+    return render_template("product_details.html")
 
 
 @app.route("/logout")

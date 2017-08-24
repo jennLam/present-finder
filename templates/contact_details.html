@@ -19,8 +19,13 @@
   </button>
 </h3>
 
-{% for interest in contact.intensities %}
-  {{ interest.interest.name }}<br/>
+{% for interest in contact.interests %}
+  <form action="/remove-interest" method="POST">
+    <input type="hidden" name="contact_id" value="{{ contact.contact_id }}">
+    <input type="hidden" name="interest_id" value="{{ interest.interest_id }}">
+    {{ interest.name }} <input type="submit" value="x">
+  </form>
+  <br/>
 {% endfor %}
 
 <div id="addEvent" class="modal fade" role="dialog">
@@ -81,16 +86,6 @@
 
   </div>
 </div>
-
-
-
-
-
-
-
-
-
-
 
 
 

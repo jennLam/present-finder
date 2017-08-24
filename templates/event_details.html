@@ -10,7 +10,7 @@
 {% for present in selected %}
     
     <div style="display: inline-block; width: 200px; vertical-align: top;">
-      <a href="/similar?product={{ present.Present.present_id }}">
+      <a href="/product-details">
         <p>{{ present.Present.present_name }}</p>
         </a>
         <img src="{{ present.Present.img_url }}">
@@ -24,7 +24,7 @@
 {% for present in past %}
     
     <div style="display: inline-block; width: 200px; vertical-align: top;">
-      <a href="/similar?product={{ present.Present.present_id }}">
+      <a href="/product-details">
         <p>{{ present.Present.present_name }}</p>
         </a>
         <img src="{{ present.Present.img_url }}">
@@ -38,8 +38,8 @@
 {% for present in bookmarked %}
     
     <div style="display: inline-block; width: 200px; vertical-align: top;">
-      <a href="/similar?product={{ present.Present.present_id }}">
-        <p>{{ present.present_name }}</p>
+      <a href="/product-details">
+        <p>{{ present.Present.present_name }}</p>
         </a>
         <img src="{{ present.Present.img_url }}">
 
@@ -52,12 +52,12 @@
 {% for product in product_list %}
     
     <div style="display: inline-block; width: 200px; vertical-align: top;">
-      <form action="/like" method="POST">
-        <input type="hidden" name="like" value="{{ product.asin }}">
+      <form action="/bookmark" method="POST">
+        <input type="hidden" name="bookmark" value="{{ product.asin }}">
         <input type="hidden" name="event_id" value="{{ event.event_id}}">
-        <input type="submit" value="Like">
+        <input type="submit" value="Bookmark">
       </form>
-      <a href="/similar?product={{ product.asin }}">
+      <a href="//product-details>
         <p>{{ product.title }}</p>
         </a>
         <img src="{{ product.medium_image_url }}">
