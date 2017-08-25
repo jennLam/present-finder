@@ -1,0 +1,16 @@
+<!-- {% for product in product_list %}
+    
+    <div style="display: inline-block; width: 200px; vertical-align: top;">
+      <form action="/bookmark" method="POST">
+        <input type="hidden" name="bookmark" value="{{ product.asin }}">
+        <input type="hidden" name="event_id" value="{{ event.event_id}}">
+        <input type="submit" value="Bookmark">
+      </form>
+      <a href="/similar?product={{ product.asin }}">
+        <p>{{ product.title }}</p>
+        </a>
+        <img src="{{ product.medium_image_url }}">
+
+    </div>
+  
+{% endfor %} -->

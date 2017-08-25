@@ -70,6 +70,7 @@ def show_register_form():
 def process_register_info():
     """Get registration form information."""
 
+    # Get information from registration from
     fname = request.form.get("fname")
     lname = request.form.get("lname")
     uname = request.form.get("uname")
@@ -77,12 +78,15 @@ def process_register_info():
     password = request.form.get("password")
     notification = request.form.get("notification")
 
+    # Check if user exists
     existing_user = User.query.filter_by(username=uname).first()
 
+    # If user exists, alert user and redirect
     if existing_user:
         flash("Account already exists.")
         return redirect(request.referrer)
 
+    # If user does not exist, create new user in database
     else:
         new_user = User(fname=fname, lname=lname, username=uname, email=email,
                         password=password, notification=notification)
@@ -182,9 +186,7 @@ def show_contacts():
 def show_contact_details(contact_id):
     """Show contact page."""
 
-    # user_id = session["user_id"]
     contact = Contact.query.get(contact_id)
-    # user = User.query.get(user_id)
 
     return render_template("contact_details.html", contact=contact,
                            user=g.current_user, category_list=category_list)
@@ -270,12 +272,16 @@ def show_event_details(event_id):
     past = presents.filter(Status.status_name == "past").all()
     bookmarked = presents.filter(Status.status_name == "bookmarked").all()
 
+    # for interest in interests:
+    #     products = amazonapi.search_limit(10, interest.name, interest.category)
+
+    #     for product in products:
+
+    #         product_list.append(product)
+
     for interest in interests:
-        products = amazonapi.search_limit(10, interest.name, interest.category)
-
-        for product in products:
-
-            product_list.append(product)
+        info = json.loads(interest.data)
+        product_list.append(info["data"])
 
     return render_template("event_details.html", event=event,
                            product_list=product_list, selected=selected, past=past,
@@ -324,7 +330,10 @@ def add_interest():
             flash("Interest successfully added.")
             return redirect(request.referrer)
     else:
-        new_interest = Interest(name=interest_name, category=category)
+        products = amazonapi.search(interest_name, category)
+        product_info = get_json(products)
+
+        new_interest = Interest(name=interest_name, category=category, data=product_info)
         db.session.add(new_interest)
         db.session.commit()
         new_intensity = Intensity(contact_id=contact_id,
@@ -342,27 +351,17 @@ def remove_interest():
     contact_id = request.form.get("contact_id")
     interest_id = request.form.get("interest_id")
 
-    # intensity = Intensity.query.filter_by(contact_id=contact_id, interest_id=interest_id)
-
-    # if intensity.first():
-    #     intensity.delete()
-    #     db.session.commit()
-    #     flash("Interest removed.")
-
-    # else:
-    #     flash("Interest does not exist.")
-
     Intensity.query.filter_by(contact_id=contact_id, interest_id=interest_id).delete()
     db.session.commit()
 
     return redirect(request.referrer)
 
 
-@app.route("/search2")
-def search2():
-    """Test search."""
+# @app.route("/search2")
+# def search2():
+#     """Test search."""
 
-    return render_template("search2.html", category_list=category_list)
+#     return render_template("search2.html", category_list=category_list)
 
 
 @app.route("/search.json")
@@ -373,22 +372,10 @@ def search_stuff():
 
     products = amazonapi.search(name, category)
 
-    return get_json(products)
-
-    # product_list = []
-
-    # for product in products:
-    #     # prod_dict = product.get_attributes(["Title"])
-
-    #     prod_dict = {"id": product.asin, "title": product.title,
-    #                  "url": product.detail_page_url, "img_url": product.medium_image_url}
-
-    #     product_list.append(prod_dict)
-
-    # return jsonify({'data': product_list, "error": None})
+    return get_json(products, compact=True)
 
 
-def get_json(products):
+def get_json(products, compact=False):
     """Return json."""
 
     product_list = []
@@ -401,21 +388,24 @@ def get_json(products):
 
         product_list.append(prod_dict)
 
-    return jsonify({'data': product_list, "error": None})
+    if compact:
+        return jsonify({'data': product_list, "error": None})
+    else:
+        return json.dumps({'data': product_list, "error": None})
 
 
 
 
-@app.route("/search")
-def search_amazon():
-    """Search Amazon for products."""
+# @app.route("/search")
+# def search_amazon():
+#     """Search Amazon for products."""
 
-    name = request.args.get("name")
-    category = request.args.get("category")
+#     name = request.args.get("name")
+#     category = request.args.get("category")
 
-    products = amazonapi.search(name, category)
+#     products = amazonapi.search(name, category)
 
-    return render_template("search.html", products=products)
+#     return render_template("search.html", products=products)
 
 
 @app.route("/similar")
@@ -428,50 +418,64 @@ def find_similar():
     return render_template("similar.html", products=products)
 
 
-@app.route("/like", methods=["POST"])
-def like_product():
-    """Add products the user likes to presents table in database."""
+# @app.route("/like", methods=["POST"])
+# def like_product():
+#     """Add products the user likes to presents table in database."""
 
-    like = request.form.get("like")
-    event_id = request.form.get("event_id")
-    print event_id
+#     like = request.form.get("like")
+#     event_id = request.form.get("event_id")
+#     print event_id
 
-    product = amazonapi.lookup(like)
+#     product = amazonapi.lookup(like)
 
-    existing_product = Present.query.filter_by(present_id=product.asin, event_id=event_id).first()
+#     existing_product = Present.query.filter_by(present_id=product.asin, event_id=event_id).first()
 
-    if existing_product:
-        flash("You have already liked this product.")
-    else:
-        new_product = Present(present_id=product.asin, event_id=event_id,
-                              present_name=product.title, url=product.detail_page_url,
-                              img_url=product.medium_image_url)
+#     if existing_product:
+#         flash("You have already liked this product.")
+#     else:
+#         new_product = Present(present_id=product.asin, event_id=event_id,
+#                               present_name=product.title, url=product.detail_page_url,
+#                               img_url=product.medium_image_url)
 
-        db.session.add(new_product)
-        db.session.commit()
+#         db.session.add(new_product)
+#         db.session.commit()
 
-    return redirect(request.referrer)
+#     return redirect(request.referrer)
 
 
 @app.route("/bookmark", methods=["POST"])
 def bookmark_product():
     """Add products the user bookmarks to presents table in database."""
 
-    bookmark = request.form.get("bookmark")
+    product_id = request.form.get("product_id")
     event_id = request.form.get("event_id")
+    status_name = request.form.get("status_name")
     # print event_id
 
-    product = amazonapi.lookup(bookmark)
+    product = amazonapi.lookup(product_id)
 
     # existing_product = Present.query.filter_by(present_id=product.asin, event_id=event_id).first()
 
-    existing_product = db.session.query(Present.present_id,
-                                        Event.event_id).join(PresentEvent).join(Event).filter(Present.present_id == product.asin, Event.event_id == event_id).first()
+    # existing_product = db.session.query(Present.present_id,
+    #                                     Event.event_id).join(PresentEvent).join(Event).filter(Present.present_id == product.asin, Event.event_id == event_id).first()
 
-    if existing_product:
+    existing_product = db.session.query(Present.present_id,
+                                        Status.status_name,
+                                        Event.event_id).join(Status).join(PresentEvent).join(Event).filter(Present.present_id == product.asin,
+                                                                                                           Event.event_id == event_id)
+
+    if existing_product.filter(Status.status_name == status_name).first():
         flash("You have already liked this product.")
+
+    elif existing_product.first():
+        existing_present = Present.query.filter_by(present_id=product_id).first()
+        status_id = db.session.query(Status.status_id).filter(Status.status_name == status_name).first()
+        existing_present.status_id = status_id
+
+        db.session.commit()
+
     else:
-        status_id = db.session.query(Status.status_id).filter(Status.status_name == "bookmarked").first()
+        status_id = db.session.query(Status.status_id).filter(Status.status_name == status_name).first()
         new_product = Present(present_id=product.asin, status_id=status_id, present_name=product.title,
                               url=product.detail_page_url, img_url=product.medium_image_url)
 
@@ -486,9 +490,13 @@ def bookmark_product():
     return redirect(request.referrer)
 
 
-@app.route("/product-details")
-def show_product():
-    return render_template("product_details.html")
+@app.route("/product-details/<product_id>")
+def show_product(product_id):
+
+    event_id = request.args.get("event_id")
+
+    product = amazonapi.lookup(product_id)
+    return render_template("product_details.html", product=product, event_id=event_id)
 
 
 @app.route("/logout")

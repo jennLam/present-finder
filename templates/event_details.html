@@ -10,7 +10,7 @@
 {% for present in selected %}
     
     <div style="display: inline-block; width: 200px; vertical-align: top;">
-      <a href="/product-details">
+      <a href="/similar?product={{ present.Present.present_id }}">
         <p>{{ present.Present.present_name }}</p>
         </a>
         <img src="{{ present.Present.img_url }}">
@@ -24,7 +24,7 @@
 {% for present in past %}
     
     <div style="display: inline-block; width: 200px; vertical-align: top;">
-      <a href="/product-details">
+      <a href="/similar?product={{ present.Present.present_id }}">
         <p>{{ present.Present.present_name }}</p>
         </a>
         <img src="{{ present.Present.img_url }}">
@@ -38,7 +38,7 @@
 {% for present in bookmarked %}
     
     <div style="display: inline-block; width: 200px; vertical-align: top;">
-      <a href="/product-details">
+      <a href="/product-details/{{ present.Present.present_id }}?event_id={{ event.event_id }}">
         <p>{{ present.Present.present_name }}</p>
         </a>
         <img src="{{ present.Present.img_url }}">
@@ -49,22 +49,36 @@
 
 <h3>Suggested Presents</h3>
 
-{% for product in product_list %}
-    
+{% for products in product_list %}
+    {% for product in products %}
+
     <div style="display: inline-block; width: 200px; vertical-align: top;">
       <form action="/bookmark" method="POST">
-        <input type="hidden" name="bookmark" value="{{ product.asin }}">
+        <input type="hidden" name="product_id" value="{{ product["id"] }}">
         <input type="hidden" name="event_id" value="{{ event.event_id}}">
+        <input type="hidden" name="status_name" value="bookmarked">
         <input type="submit" value="Bookmark">
       </form>
-      <a href="//product-details>
-        <p>{{ product.title }}</p>
-        </a>
-        <img src="{{ product.medium_image_url }}">
+      <a href="/product-details/{{ product["id"] }}?event_id={{ event.event_id }}">
+        <p>{{ product["title"] }}</p>
+      </a>
+      <img src="{{ product.img_url }}">
 
     </div>
+   
+    {% endfor %}
+    <br/><br/>
   
 {% endfor %}
+
+
+
+
+
+
+
+
+
 
 
 

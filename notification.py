@@ -49,7 +49,7 @@ def job():
     for event in events:
         check_date(event.date, today_date, event.event_name)
 
-    presents = db.session.query(Present.status_id,
+    presents = db.session.query(Present.present_id,
                                 Status.status_name,
                                 Event.date).join(Status).join(PresentEvent).join(Event).filter(Status.status_name == "selected").all()
 
@@ -60,8 +60,8 @@ def job():
 
 
 # schedule.every().day.at("11:54").do(job)
-# schedule.every(1).minutes.do(job)
-schedule.every().hour.do(job)
+schedule.every(1).minutes.do(job)
+# schedule.every().hour.do(job)
 
 while True:
     schedule.run_pending()

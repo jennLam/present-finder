@@ -1,9 +1,12 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h3>Product Details</h3>
-<form>
-  <select name="change_status">
+<h3>Product Details {{ event_id }}</h3>
+<form action="/bookmark" method="POST">
+  <input type="hidden" name="product_id" value="{{ product.asin }}">
+  <input type="hidden" name="event_id" value="{{ event_id }}">
+
+  <select name="status_name">
     <option value="selected">Select</option>
   </select>
   <input type="submit" value="Go">
@@ -11,8 +14,8 @@
     
     <div style="display: inline-block; width: 200px; vertical-align: top;">
       <form action="/bookmark" method="POST">
-        <input type="hidden" name="bookmark" value="{{ product.asin }}">
-        <input type="hidden" name="event_id" value="{{ event.event_id}}">
+        <input type="hidden" name="product_id" value="{{ product.asin }}">
+        <input type="hidden" name="event_id" value="{{ event_id }}">
         <input type="submit" value="Bookmark">
       </form>
       <a href="/similar?product={{ product.asin }}">
