@@ -129,25 +129,39 @@ def process_login():
         return redirect(request.referrer)
 
 
+def get_recent_events(events, event_date):
+    """Get recent events of the current month in sorted order."""
+
+    # Get current date
+    current_date = datetime.now()
+
+    # Filter events from database where the event date is in the same month
+    # but after today's day
+    recent_events = events.filter(extract("month", event_date) == current_date.month,
+                                  extract("year", event_date) == current_date.year,
+                                  extract("day", event_date) >= current_date.day)
+
+    # Sort events is ascending order
+    ordered_recent_events = recent_events.order_by(event_date).all()
+
+    return ordered_recent_events
+
+
 @app.route("/user/<user_id>")
 @login_required
 def show_user_page(user_id):
-    """Show user page."""
+    """Show user's homepage."""
 
-    # user = User.query.get(user_id)
+    # Get products/presents from user table for user
     products = Present.query.filter_by(user_id=user_id).all()
 
-    contacts = db.session.query(Contact.contact_id).filter_by(user_id=user_id).all()
+    # Get all the events for user
+    user_events = db.session.query(Event.event_id, Event.contact_id,
+                                   Event.event_name, Event.date, Contact.fname,
+                                   User.user_id).join(Contact).join(User).filter(User.user_id == user_id)
 
-    # events = Event.query.filter(Event.contact_id.in_(contacts)).all()
-
-    current_datetime = datetime.now()
-    current_month = current_datetime.month
-    current_year = current_datetime.year
-
-    current_events = Event.query.filter(Event.contact_id.in_(contacts),
-                                        extract("month", Event.date) == current_month,
-                                        extract("year", Event.date) == current_year).all()
+    # Get events for the current month
+    current_events = get_recent_events(user_events, Event.date)
 
     return render_template("home.html", user=g.current_user, products=products,
                            current_events=current_events, category_list=category_list)
@@ -205,13 +219,13 @@ def add_event():
 
     if existing_event:
         flash("event already exists.")
-        return redirect(request.referrer)
+
     else:
         event = Event(contact_id=contact_id, event_name=event_name, date=date)
         db.session.add(event)
         db.session.commit()
         flash("Event successfully added.")
-        return redirect(request.referrer)
+    return redirect(request.referrer)
 
 
 @app.route("/edit-event", methods=["POST"])
@@ -240,22 +254,6 @@ def show_events():
     return render_template("events.html", events=g.current_user.events)
 
 
-@app.route("/notification", methods=["POST"])
-def set_notification():
-    reminder = request.form.get("reminder")
-
-    for contact in g.current_user.contacts:
-        for event in contact.events:
-            event.notification = reminder
-
-    db.session.commit()
-
-    for contact in g.current_user.contacts:
-        print contact.events
-
-    return redirect(request.referrer)
-
-
 @app.route("/event/<event_id>")
 def show_event_details(event_id):
     """Show event details."""
@@ -272,13 +270,6 @@ def show_event_details(event_id):
     past = presents.filter(Status.status_name == "past").all()
     bookmarked = presents.filter(Status.status_name == "bookmarked").all()
 
-    # for interest in interests:
-    #     products = amazonapi.search_limit(10, interest.name, interest.category)
-
-    #     for product in products:
-
-    #         product_list.append(product)
-
     for interest in interests:
         info = json.loads(interest.data)
         product_list.append(info["data"])
@@ -286,20 +277,6 @@ def show_event_details(event_id):
     return render_template("event_details.html", event=event,
                            product_list=product_list, selected=selected, past=past,
                            bookmarked=bookmarked)
-
-
-# @app.route("/add-interest", methods=["GET"])
-# def show_interest():
-#     """Show interest form."""
-
-#     contact_id = request.args.get("contact_id")
-
-#     contact = Contact.query.get(contact_id)
-
-#     interests = contact.intensities
-
-#     return render_template("interest.html", contact=contact, category_list=category_list,
-#                            interests=interests)
 
 
 @app.route("/add-interest", methods=["POST"])
@@ -357,13 +334,6 @@ def remove_interest():
     return redirect(request.referrer)
 
 
-# @app.route("/search2")
-# def search2():
-#     """Test search."""
-
-#     return render_template("search2.html", category_list=category_list)
-
-
 @app.route("/search.json")
 def search_stuff():
 
@@ -394,20 +364,6 @@ def get_json(products, compact=False):
         return json.dumps({'data': product_list, "error": None})
 
 
-
-
-# @app.route("/search")
-# def search_amazon():
-#     """Search Amazon for products."""
-
-#     name = request.args.get("name")
-#     category = request.args.get("category")
-
-#     products = amazonapi.search(name, category)
-
-#     return render_template("search.html", products=products)
-
-
 @app.route("/similar")
 def find_similar():
     """Find similar products."""
@@ -416,31 +372,6 @@ def find_similar():
     products = amazonapi.get_similar(product)
 
     return render_template("similar.html", products=products)
-
-
-# @app.route("/like", methods=["POST"])
-# def like_product():
-#     """Add products the user likes to presents table in database."""
-
-#     like = request.form.get("like")
-#     event_id = request.form.get("event_id")
-#     print event_id
-
-#     product = amazonapi.lookup(like)
-
-#     existing_product = Present.query.filter_by(present_id=product.asin, event_id=event_id).first()
-
-#     if existing_product:
-#         flash("You have already liked this product.")
-#     else:
-#         new_product = Present(present_id=product.asin, event_id=event_id,
-#                               present_name=product.title, url=product.detail_page_url,
-#                               img_url=product.medium_image_url)
-
-#         db.session.add(new_product)
-#         db.session.commit()
-
-#     return redirect(request.referrer)
 
 
 @app.route("/bookmark", methods=["POST"])

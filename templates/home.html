@@ -6,10 +6,33 @@
     <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#addEvent">
     +</button>
   </h3><br/>
+
   {% for event in current_events %}
   {{event.date.strftime("%m-%d-%Y")}}<br/>
-  <a href="/event/{{ event.event_id }}">{{ event.contact.fname}}'s {{ event.event_name }}</a><br/><br/>
+  <a id="eventLink" href="/event/{{ event.event_id }}">{{ event.fname}}'s {{ event.event_name }}</a><br/><br/>
   {% endfor %}
+
+
+<script src="http://unpkg.com/react/dist/react.js"></script>
+<script src="http://unpkg.com/react-dom/dist/react-dom.js"></script>
+
+<script src="http://unpkg.com/babel-standalone"></script>
+
+
+   <script>
+
+  // function getEvents() {
+
+    
+  // }
+
+
+  // $("#eventLink").on("click", getEvents);
+  // </script>
+
+
+
+
   <h3><a href="/contact">Contacts</a>
   <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#myModal">
     +</button></h3>

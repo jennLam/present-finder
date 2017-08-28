@@ -55,7 +55,8 @@ def job():
 
     for present in presents:
         if present.date < today_date:
-            present.status_id = 2
+            pres = Present.query.get(present.Present.present_id)
+            pres.status_id = 2
             db.session.commit()
 
 
