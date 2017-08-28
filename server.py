@@ -85,24 +85,17 @@ def process_register_info():
     password = request.form.get("password")
     notification = request.form.get("notification")
 
-    # Check if user exists
+    # Get existing user in database
     existing_user = User.query.filter_by(username=uname).first()
 
-    # If user exists, alert user and redirect
-    if existing_user:
-        flash("Account already exists.")
-        return redirect(request.referrer)
+    # Make new user
+    new_user = User(fname=fname, lname=lname, username=uname, email=email,
+                    password=password, notification=notification)
 
-    # If user does not exist, create new user in database
-    else:
-        new_user = User(fname=fname, lname=lname, username=uname, email=email,
-                        password=password, notification=notification)
+    # Check database, add to database
+    check_and_add(existing_user, new_user)
 
-        db.session.add(new_user)
-        db.session.commit()
-
-        flash("Account successfully created.")
-        return redirect("/")
+    return redirect(request.referrer)
 
 
 @app.route("/login")
@@ -116,24 +109,30 @@ def show_login_form():
 def process_login():
     """Process login."""
 
+    # Get info from form
     username = request.form.get("username")
     password = request.form.get("password")
 
+    # Get existing user in database
     existing_user = User.query.filter_by(username=username).first()
 
+    # Check if user exists
     if existing_user:
-        existing_password = existing_user.password
-        if existing_password == password:
+        # If yes, check password matches database password
+        if existing_user.password == password:
+            # If yes, add user_id and name to session
             session["user_id"] = existing_user.user_id
             session["user_name"] = existing_user.fname
             flash("Login Successful!")
             return redirect("/user/" + str(session["user_id"]))
+        # If no, alert user
         else:
             flash("Incorrect password.")
-            return redirect(request.referrer)
+    # If no, alert user
     else:
         flash("User does not exist.")
-        return redirect(request.referrer)
+
+    return redirect(request.referrer)
 
 
 def get_recent_events(events, event_date):
@@ -252,17 +251,22 @@ def add_event():
 def edit_event():
     """Edit event in database."""
 
+    # Get info from form
     event_name = request.form.get("ename")
     date = request.form.get("date")
     event_id = request.form.get("event_id")
 
+    # Get item from database
     existing_event = Event.query.filter_by(event_id=event_id).first()
 
+    # Update the event_name and date attributes
     existing_event.event_name = event_name
     existing_event.date = date
 
+    # Commit to make changes in database
     db.session.commit()
     flash("Event updated.")
+
     return redirect(request.referrer)
 
 
@@ -282,14 +286,15 @@ def show_event_details(event_id):
     interests = event.contact.interests
     product_list = []
 
-    presents = db.session.query(Present,
-                                Event.event_id,
-                                Status.status_name).join(PresentEvent).join(Event).join(Status).filter(Event.event_id == event_id)
+    event_presents = db.session.query(Present,
+                                      Event.event_id,
+                                      Status.status_name).join(PresentEvent).join(Event).join(Status).filter(Event.event_id == event_id)
 
-    selected = presents.filter(Status.status_name == "selected").all()
-    past = presents.filter(Status.status_name == "past").all()
-    bookmarked = presents.filter(Status.status_name == "bookmarked").all()
+    selected = event_presents.filter(Status.status_name == "selected").all()
+    past = event_presents.filter(Status.status_name == "past").all()
+    bookmarked = event_presents.filter(Status.status_name == "bookmarked").all()
 
+    #ajax?
     for interest in interests:
         info = json.loads(interest.data)
         product_list.append(info["data"])
@@ -315,40 +320,40 @@ def add_interest():
         existing_intensity = Intensity.query.filter_by(contact_id=contact_id,
                                                        interest_id=existing_interest.interest_id,
                                                        amount=amount).first()
-        if existing_intensity:
-            flash("Interest already exists.")
-            return redirect(request.referrer)
-        else:
-            new_intensity = Intensity(contact_id=contact_id,
-                                      interest_id=existing_interest.interest_id,
-                                      amount=amount)
-            db.session.add(new_intensity)
-            db.session.commit()
-            flash("Interest successfully added.")
-            return redirect(request.referrer)
+
+        new_intensity = Intensity(contact_id=contact_id,
+                                  interest_id=existing_interest.interest_id,
+                                  amount=amount)
+
+        check_and_add(existing_intensity, new_intensity)
+
     else:
         products = amazonapi.search(interest_name, category)
         product_info = get_json(products)
 
         new_interest = Interest(name=interest_name, category=category, data=product_info)
-        db.session.add(new_interest)
-        db.session.commit()
+
+        add_to_database(new_interest)
+
         new_intensity = Intensity(contact_id=contact_id,
-                                  interest_id=new_interest.interest_id, amount=True)
-        db.session.add(new_intensity)
-        db.session.commit()
-        flash("Interest successfully added.")
-        return redirect(request.referrer)
+                                  interest_id=new_interest.interest_id, amount=amount)
+
+        add_to_database(new_intensity)
+
+    return redirect(request.referrer)
 
 
 @app.route("/remove-interest", methods=["POST"])
 def remove_interest():
     """Remove interest."""
 
+    # Get info from form
     contact_id = request.form.get("contact_id")
     interest_id = request.form.get("interest_id")
 
+    # Delete the intensity (connecting contact_id and interest_id)
     Intensity.query.filter_by(contact_id=contact_id, interest_id=interest_id).delete()
+    # Commit to make changes to database
     db.session.commit()
 
     return redirect(request.referrer)
@@ -371,7 +376,6 @@ def get_json(products, compact=False):
     product_list = []
 
     for product in products:
-        # prod_dict = product.get_attributes(["Title"])
 
         prod_dict = {"id": product.asin, "title": product.title,
                      "url": product.detail_page_url, "img_url": product.medium_image_url}
@@ -398,18 +402,15 @@ def find_similar():
 def bookmark_product():
     """Add products the user bookmarks to presents table in database."""
 
+    # Get info from form
     product_id = request.form.get("product_id")
     event_id = request.form.get("event_id")
     status_name = request.form.get("status_name")
-    # print event_id
 
+    # Get product from amazon api through product_id
     product = amazonapi.lookup(product_id)
 
-    # existing_product = Present.query.filter_by(present_id=product.asin, event_id=event_id).first()
-
-    # existing_product = db.session.query(Present.present_id,
-    #                                     Event.event_id).join(PresentEvent).join(Event).filter(Present.present_id == product.asin, Event.event_id == event_id).first()
-
+    # Get product from database
     existing_product = db.session.query(Present.present_id,
                                         Status.status_name,
                                         Event.event_id).join(Status).join(PresentEvent).join(Event).filter(Present.present_id == product.asin,
@@ -427,16 +428,11 @@ def bookmark_product():
 
     else:
         status_id = db.session.query(Status.status_id).filter(Status.status_name == status_name).first()
-        new_product = Present(present_id=product.asin, status_id=status_id, present_name=product.title,
-                              url=product.detail_page_url, img_url=product.medium_image_url)
+        add_to_database(Present(present_id=product.asin, status_id=status_id,
+                                present_name=product.title, url=product.detail_page_url,
+                                img_url=product.medium_image_url))
 
-        db.session.add(new_product)
-        db.session.commit()
-
-        new_presentevent = PresentEvent(present_id=product.asin, event_id=event_id)
-
-        db.session.add(new_presentevent)
-        db.session.commit()
+        add_to_database(PresentEvent(present_id=product.asin, event_id=event_id))
 
     return redirect(request.referrer)
 

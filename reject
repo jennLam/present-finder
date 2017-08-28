@@ -186,3 +186,49 @@ def show_user_page(user_id):
 
     return render_template("home.html", user=g.current_user, products=products,
                            current_events=current_events, category_list=category_list)
+
+
+@app.route("/bookmark", methods=["POST"])
+def bookmark_product():
+    """Add products the user bookmarks to presents table in database."""
+
+    product_id = request.form.get("product_id")
+    event_id = request.form.get("event_id")
+    status_name = request.form.get("status_name")
+    
+    product = amazonapi.lookup(product_id)
+
+    # existing_product = Present.query.filter_by(present_id=product.asin, event_id=event_id).first()
+
+    # existing_product = db.session.query(Present.present_id,
+    #                                     Event.event_id).join(PresentEvent).join(Event).filter(Present.present_id == product.asin, Event.event_id == event_id).first()
+
+    existing_product = db.session.query(Present.present_id,
+                                        Status.status_name,
+                                        Event.event_id).join(Status).join(PresentEvent).join(Event).filter(Present.present_id == product.asin,
+                                                                                                           Event.event_id == event_id)
+
+    if existing_product.filter(Status.status_name == status_name).first():
+        flash("You have already liked this product.")
+
+    elif existing_product.first():
+        existing_present = Present.query.filter_by(present_id=product_id).first()
+        status_id = db.session.query(Status.status_id).filter(Status.status_name == status_name).first()
+        existing_present.status_id = status_id
+
+        db.session.commit()
+
+    else:
+        status_id = db.session.query(Status.status_id).filter(Status.status_name == status_name).first()
+        new_product = Present(present_id=product.asin, status_id=status_id, present_name=product.title,
+                              url=product.detail_page_url, img_url=product.medium_image_url)
+
+        db.session.add(new_product)
+        db.session.commit()
+
+        new_presentevent = PresentEvent(present_id=product.asin, event_id=event_id)
+
+        db.session.add(new_presentevent)
+        db.session.commit()
+
+    return redirect(request.referrer)
