@@ -66,6 +66,13 @@ def show_register_form():
     return render_template("register.html")
 
 
+def add_to_database(item):
+    """Add item to the database."""
+
+    db.session.add(item)
+    db.session.commit()
+
+
 @app.route("/register", methods=["POST"])
 def process_register_info():
     """Get registration form information."""
@@ -167,25 +174,38 @@ def show_user_page(user_id):
                            current_events=current_events, category_list=category_list)
 
 
+def check_and_add(existing_item, item):
+    """Check if an item already exists in the database and adds it if it doesn't."""
+
+    # Check if it exists
+    if existing_item:
+        flash(item.__class__.__name__ + " already exists.")
+    # If not, add to database
+    else:
+        add_to_database(item)
+        flash(item.__class__.__name__ + " successfully added.")
+
+
 @app.route("/add-contact", methods=["POST"])
+@login_required
 def add_contact():
     """Add contact to database."""
 
+    # Get information from form
     fname = request.form.get("fname")
     lname = request.form.get("lname")
 
+    # Get existing contact with form info
     existing_contact = Contact.query.filter_by(user_id=g.user_id, fname=fname,
                                                lname=lname).first()
 
-    if existing_contact:
-        flash("Contact already exists.")
-        return redirect(request.referrer)
-    else:
-        new_contact = Contact(user_id=g.user_id, fname=fname, lname=lname)
-        db.session.add(new_contact)
-        db.session.commit()
-        flash("Contact successfully added.")
-        return redirect(request.referrer)
+    # Make new contact with form info
+    new_contact = Contact(user_id=g.user_id, fname=fname, lname=lname)
+
+    # Check if existing contact is in database, add new contact if it isn't
+    check_and_add(existing_contact, new_contact)
+
+    return redirect(request.referrer)
 
 
 @app.route("/contact")
@@ -198,7 +218,7 @@ def show_contacts():
 
 @app.route("/contact/<contact_id>")
 def show_contact_details(contact_id):
-    """Show contact page."""
+    """Show contact details page."""
 
     contact = Contact.query.get(contact_id)
 
@@ -210,21 +230,21 @@ def show_contact_details(contact_id):
 def add_event():
     """Add event to database."""
 
+    # Get information from form
     event_name = request.form.get("ename")
     date = request.form.get("date")
     contact_id = request.form.get("contact_id")
 
+    # Get existing event
     existing_event = Event.query.filter_by(contact_id=contact_id,
                                            event_name=event_name).first()
 
-    if existing_event:
-        flash("event already exists.")
+    # Make new event
+    new_event = Event(contact_id=contact_id, event_name=event_name, date=date)
 
-    else:
-        event = Event(contact_id=contact_id, event_name=event_name, date=date)
-        db.session.add(event)
-        db.session.commit()
-        flash("Event successfully added.")
+    # Check in database, add to database
+    check_and_add(existing_event, new_event)
+
     return redirect(request.referrer)
 
 
