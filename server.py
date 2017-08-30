@@ -169,7 +169,7 @@ def show_user_page(user_id):
     # Get events for the current month
     current_events = get_recent_events(user_events, Event.date)
 
-    return render_template("home.html", user=g.current_user, products=products,
+    return render_template("home2.html", user=g.current_user, products=products,
                            current_events=current_events, category_list=category_list)
 
 
@@ -207,12 +207,29 @@ def add_contact():
     return redirect(request.referrer)
 
 
-@app.route("/contact")
-@login_required
-def show_contacts():
-    """Show a list of contacts."""
+# @app.route("/contact")
+# @login_required
+# def show_contacts():
+#     """Show a list of contacts."""
 
-    return render_template("contacts.html", user=g.current_user)
+#     return render_template("contacts.html", user=g.current_user)
+
+@app.route("/contact.json")
+def get_contact_info():
+
+    contact_id = request.args.get("contact")
+
+    contact = Contact.query.get(contact_id)
+    events = []
+    interests = []
+    for event in contact.events:
+        events.append(event.to_dict())
+
+    for interest in contact.interests:
+        interests.append(interest.to_dict())
+
+    # print events
+    return jsonify({"contact": contact.to_dict(), "events": events, "interests": interests})
 
 
 @app.route("/contact/<contact_id>")
@@ -223,6 +240,8 @@ def show_contact_details(contact_id):
 
     return render_template("contact_details.html", contact=contact,
                            user=g.current_user, category_list=category_list)
+
+
 
 
 @app.route("/add-event", methods=["POST"])
@@ -270,12 +289,58 @@ def edit_event():
     return redirect(request.referrer)
 
 
-@app.route("/event")
-@login_required
-def show_events():
-    """Show a list of events."""
+# @app.route("/event")
+# @login_required
+# def show_events():
+#     """Show a list of events."""
 
-    return render_template("events.html", events=g.current_user.events)
+#     return render_template("events.html", events=g.current_user.events)
+
+@app.route("/event.json")
+def get_event_info():
+    event_id = request.args.get("event")
+
+    event = Event.query.get(event_id)
+    interests = event.contact.interests
+
+    event_presents = db.session.query(Present,
+                                      Event.event_id,
+                                      Status.status_name).join(PresentEvent).join(Event).join(Status).filter(Event.event_id == event_id)
+
+    selected = event_presents.filter(Status.status_name == "selected").all()
+    past = event_presents.filter(Status.status_name == "past").all()
+    bookmarked = event_presents.filter(Status.status_name == "bookmarked").all()
+
+    selected_presents = []
+    past_presents = []
+    bookmarked_presents = []
+    products = []
+
+    for present in selected:
+        selected_presents.append(present[0].to_dict())
+
+    for present in past:
+        past_presents.append(present[0].to_dict())
+
+    for present in bookmarked:
+        bookmarked_presents.append(present[0].to_dict())
+
+
+    for interest in interests:
+        # print interest
+        # print interest["title"]
+        # interest_json = json.loads(interest.data)
+        products.append(json.loads(interest.data))
+
+    # print products[0].get("title")
+
+
+    return jsonify({"contact": event.contact.to_dict(), "event": event.to_dict(),
+                    "selected": selected_presents, "past": past_presents,
+                    "bookmarked": bookmarked_presents, "products": products})
+
+
+
 
 
 @app.route("/event/<event_id>")
@@ -308,36 +373,50 @@ def show_event_details(event_id):
 def add_interest():
     """Add interests to database."""
 
+    # Get info from form
     contact_id = request.form.get("contact_id")
     interest_name = request.form.get("interest_name")
     category = request.form.get("category")
     amount = request.form.get("amount")
 
+    # Get existing interest in database
     existing_interest = Interest.query.filter_by(name=interest_name,
                                                  category=category).first()
 
+    # If it exists, check for intensity
     if existing_interest:
+        # Get existing intensity in database
         existing_intensity = Intensity.query.filter_by(contact_id=contact_id,
                                                        interest_id=existing_interest.interest_id,
                                                        amount=amount).first()
 
+        # Create new intensity
         new_intensity = Intensity(contact_id=contact_id,
                                   interest_id=existing_interest.interest_id,
                                   amount=amount)
 
+        # Check and add intensity to database
         check_and_add(existing_intensity, new_intensity)
 
+    # If interest does not exist
     else:
+        # Search for interest through amazon api
         products = amazonapi.search(interest_name, category)
+
+        # Get product in json
         product_info = get_json(products)
 
+        # Make new interest
         new_interest = Interest(name=interest_name, category=category, data=product_info)
 
+        # Add to database
         add_to_database(new_interest)
 
+        # Make new intensity
         new_intensity = Intensity(contact_id=contact_id,
                                   interest_id=new_interest.interest_id, amount=amount)
 
+        # Add to database
         add_to_database(new_intensity)
 
     return redirect(request.referrer)
@@ -385,7 +464,7 @@ def get_json(products, compact=False):
     if compact:
         return jsonify({'data': product_list, "error": None})
     else:
-        return json.dumps({'data': product_list, "error": None})
+        return json.dumps(product_list)
 
 
 @app.route("/similar")
@@ -451,6 +530,7 @@ def show_product(product_id):
 def process_logout():
     """Process logout."""
 
+    #session.clear()
     session["user_id"] = ""
     session["user_name"] = ""
     flash("Logout Successful.")

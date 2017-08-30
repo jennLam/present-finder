@@ -8,11 +8,7 @@
 
       <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
-      <style>
-      .contact-link {
-        color: red;
-      }
-      </style>
+
   </head>
   <body>
 
@@ -32,11 +28,26 @@
     <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav">
-        
         {% if session.get("user_id") %}
-        <li class="active"><a href="/user/{{ session['user_id'] }}">Home<span class="sr-only">(current)</span></a></li>
-        {% endif %}
+
+
+        <div class="dropdown">
+        <button class="btn btn-primary dropdown-toggle" type="button" data-toggle="dropdown">Menu
+        <span class="caret"></span></button>
+        <ul class="dropdown-menu">
+          <li class="active"><a href="/user/{{ session['user_id'] }}">Home<span class="sr-only">(current)</span></a></li>
+          <li><a href="/event">Events</a></li>
+          <li><a href="/contact">Contacts</a></li>
+          <li><a href="#">Likes</a></li>
+        </ul>
+      </div>
+
         
+
+        {% else %}
+
+        <li class="active"><a href="/">Home<span class="sr-only">(current)</span></a></li>
+        {% endif %}
 
       </ul>
       
@@ -44,7 +55,7 @@
         {% if session.get("user_name") %}
           <li><a href="#">Welcome {{ session["user_name"] }}!</a></li>
         {% else %}
-          <li><a href="#" data-toggle="modal" data-target="#registerForm">Register</a></li>
+          <li><a href="#" data-toggle="modal" data-target="#myModal">Register</a></li>
         {% endif %}
 
         {% if session.get("user_id") %}
@@ -62,7 +73,7 @@
 
 
 
-<div id="registerForm" class="modal fade" role="dialog">
+<div id="myModal" class="modal fade" role="dialog">
   <div class="modal-dialog">
 
     <!-- Modal content-->
