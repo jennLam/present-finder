@@ -1,33 +1,76 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h3>Product Details</h3>
-<form action="/bookmark" method="POST">
-  <input type="hidden" name="product_id" value="{{ product.asin }}">
-  <input type="hidden" name="event_id" value="{{ event_id }}">
 
-  <select name="status_name">
-    <option value="selected">Select</option>
-  </select>
-  <input type="submit" value="Go">
-</form>
+    <div>
+      <table>
+
+        <tr>
+          <td style="width:35%;">
+            <img src="{{ product.large_image_url }}" class="img-responsive">
+          </td>
+          <td style="vertical-align: top; width:50%;">
+            <br/><br/>
+            <div style="vertical-align: top; width:75%;">
+            <h4>{{ product.title }}</h4>
+            <p>${{ price }}
+
+              <form action="/bookmark" method="POST">
+                <input type="hidden" name="product_id" value="{{ product.asin }}">
+                <input type="hidden" name="event_id" value="{{ event_id }}">
+
+                <select name="status_name">
+                  <option value="bookmarked">Bookmark</option>
+                  <option value="selected">Select</option>
+                </select>
+                <input type="submit" value="Go">
+              </form>
+
+            </p>
+            <p>{{ product.editorial_review }}</p>
+          </div>
+          </td>
+          
+          <tr>
+            <td colspan="2">
+              <br/>
+              <br/>
+              <br/>
+              <div>
+                <h4>Similar Products</h4>
+        {% for sim_product in sim_products %}
     
     <div style="display: inline-block; width: 200px; vertical-align: top;">
+      
       <form action="/bookmark" method="POST">
-        <input type="hidden" name="product_id" value="{{ product.asin }}">
-        <input type="hidden" name="event_id" value="{{ event_id }}">
+        <input type="hidden" name="product_id" value="{{ sim_product.asin }}">
+        <input type="hidden" name="event_id" value="{{ event_id}}">
+        <input type="hidden" name="status_name" value="bookmarked">
         <input type="submit" value="Bookmark">
       </form>
-      <a href="/similar?product={{ product.asin }}">
-        <p>{{ product.title }}</p>
-        <p>{{ product.features}}</p>
-        <p>{{ product.price_and_currency}}</p>
+      <a href="/product-details/{{ sim_product.asin }}?event_id={{ event_id }}">
+        <p>{{ sim_product.title }}</p>
         </a>
-        <img src="{{ product.medium_image_url }}">
-        <img src="{{ product.small_image_url }}">
-        <img src="{{ product.tiny_image_url }}">
-        <img src="{{ product.large_image_url }}">
+        <img src="{{ sim_product.medium_image_url }}">
 
     </div>
+  
+{% endfor %}
+</div>
+            </td>
+          </tr>
+
+      </table>
+
+
+     
+
+
+    </div>
+
+
+
+
+
 
 {% endblock %}

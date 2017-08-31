@@ -1,16 +1,16 @@
 {% extends "base.html" %}
 {% block content %}
 
-<h2>Event Details <button type="button" class="btn btn-info btn-lg" data-toggle="modal" data-target="#editEvent">
-    Edit Event</button></h2>
+<h4>Event Details <button type="button" class="btn btn-info" data-toggle="modal" data-target="#editEvent">
+    Edit Event</button></h4>
 <a href="/contact/{{ event.contact.contact_id }}">{{ event.contact.fname }} {{ event.contact.lname }}'s</a> {{ event.event_name }} {{event.date.strftime("- %A, %B %d, %Y")}}
 
-<h3>Selected Presents</h3>
+<h4>Selected Presents</h4>
 
 {% for present in selected %}
     
     <div style="display: inline-block; width: 200px; vertical-align: top;">
-      <a href="/similar?product={{ present.Present.present_id }}">
+      <a href="/product-details/{{ present.Present.present_id }}?event_id={{ event.event_id }}">
         <p>{{ present.Present.present_name }}</p>
         </a>
         <img src="{{ present.Present.img_url }}">
@@ -19,12 +19,12 @@
   
 {% endfor %}
 
-<h3>Past Presents</h3>
+<h4>Past Presents</h4>
 
 {% for present in past %}
     
     <div style="display: inline-block; width: 200px; vertical-align: top;">
-      <a href="/similar?product={{ present.Present.present_id }}">
+      <a href="/product-details/{{ present.Present.present_id }}?event_id={{ event.event_id }}">
         <p>{{ present.Present.present_name }}</p>
         </a>
         <img src="{{ present.Present.img_url }}">
@@ -33,7 +33,7 @@
 
 {% endfor %}
 
-<h3>Bookmarked Presents</h3>
+<h4>Bookmarked Presents</h4>
 
 {% for present in bookmarked %}
     
@@ -47,7 +47,7 @@
   
 {% endfor %}
 
-<h3>Suggested Presents</h3>
+<h4>Suggested Presents</h4>
 
 {% for products in product_list %}
     {% for product in products %}

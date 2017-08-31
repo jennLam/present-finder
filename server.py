@@ -63,13 +63,6 @@ def index():
     return render_template("homepage.html")
 
 
-@app.route("/register")
-def show_register_form():
-    """Show registration form."""
-
-    return render_template("register.html")
-
-
 def add_to_database(item):
     """Add item to the database."""
 
@@ -100,13 +93,6 @@ def process_register_info():
     check_and_add(existing_user, new_user)
 
     return redirect(request.referrer)
-
-
-@app.route("/login")
-def show_login_form():
-    """Show login form."""
-
-    return render_template("login.html")
 
 
 @app.route("/login", methods=["POST"])
@@ -178,14 +164,6 @@ def add_contact():
     return redirect(request.referrer)
 
 
-# @app.route("/contact")
-# @login_required
-# def show_contacts():
-#     """Show a list of contacts."""
-
-#     return render_template("contacts.html", user=g.current_user)
-
-
 @app.route("/contact/<contact_id>")
 def show_contact_details(contact_id):
     """Show contact details page."""
@@ -241,14 +219,6 @@ def edit_event():
     flash("Event updated.")
 
     return redirect(request.referrer)
-
-
-# @app.route("/event")
-# @login_required
-# def show_events():
-#     """Show a list of events."""
-
-#     return render_template("events.html", events=g.current_user.events)
 
 
 @app.route("/event/<event_id>")
@@ -385,6 +355,7 @@ def find_similar():
 
     product = request.args.get("product")
     products = amazonapi.get_similar(product)
+    # return products
 
     return render_template("similar.html", products=products)
 
@@ -436,9 +407,13 @@ def show_product(product_id):
     sidebar_info = get_sidebar_info(g.user_id)
 
     product = amazonapi.lookup(product_id)
+
+    sim_products = amazonapi.get_similar(product_id)
+
+    price = float(product.price_and_currency[0])
     return render_template("product_details.html", product=product, event_id=event_id,
                            products=sidebar_info["products"], current_events=sidebar_info["current_events"],
-                           user=g.current_user)
+                           user=g.current_user, price=price, sim_products=sim_products)
 
 
 @app.route("/logout")
