@@ -8,11 +8,6 @@
 
       <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
 
-      <style>
-      .contact-link {
-        color: red;
-      }
-      </style>
   </head>
   <body>
 
@@ -57,6 +52,47 @@
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->
 </nav>
+
+
+{% if session.get("user_id") %}
+<div class="sidebar" style="width:25%;float:right;">
+  <h4><a href="/event">Upcoming Events</a>
+    <button type="button" class="btn btn-info" data-toggle="modal" data-target="#addEvent">
+    +</button>
+  </h4><br/>
+
+  {% for event in current_events %}
+  {{event.date.strftime("%m-%d-%Y")}}<br/>
+  <a id="eventLink" href="/event/{{ event.event_id }}">{{ event.fname}}'s {{ event.event_name }}</a><br/><br/>
+  {% endfor %}
+
+
+<script src="http://unpkg.com/react/dist/react.js"></script>
+<script src="http://unpkg.com/react-dom/dist/react-dom.js"></script>
+
+<script src="http://unpkg.com/babel-standalone"></script>
+
+
+  <h4><a href="/contact">Contacts</a>
+  <button type="button" class="btn btn-info" data-toggle="modal" data-target="#addContact">
+    +</button></h4>
+  <br/>
+  {% for contact in user.contacts %}
+    <a href="/contact/{{contact.contact_id}}">{{ contact.fname }} {{ contact.lname }}</a><br/>
+  {% endfor %}
+  <a href="#"><h4>Likes</h4></a><br/>
+  {% for product in products %}
+    
+    <div style="display: inline-block; width: 200px; vertical-align: top;">
+      <a href="/similar?product={{ product.present_id }}">
+        <p>{{ product.present_name }}</p>
+      </a>
+      <img src="{{ product.img_url }}">
+    </div>
+  
+  {% endfor %}
+</div>
+{% endif %}
 
 
 
@@ -126,10 +162,6 @@
 
 
 
-
-
-
-
     {% for message in get_flashed_messages() %}
       {{ message }}
     {% endfor %}
@@ -139,9 +171,5 @@
     {% endblock %}
 
 
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <!-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script> -->
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <!-- <script src="js/bootstrap.min.js"></script> -->
   </body>
 </html>

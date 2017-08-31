@@ -8,6 +8,7 @@ from sqlalchemy import extract
 from functools import wraps
 import json
 import amazonapi
+from resource import get_recent_events, get_sidebar_info
 
 app = Flask(__name__)
 
@@ -55,6 +56,9 @@ def login_required(f):
 @app.route("/")
 def index():
     """Homepage."""
+
+    if g.user_id:
+        return redirect("/user/" + str(g.user_id))
 
     return render_template("homepage.html")
 
@@ -109,48 +113,23 @@ def show_login_form():
 def process_login():
     """Process login."""
 
-    # Get info from form
     username = request.form.get("username")
     password = request.form.get("password")
 
-    # Get existing user in database
     existing_user = User.query.filter_by(username=username).first()
 
-    # Check if user exists
     if existing_user:
-        # If yes, check password matches database password
         if existing_user.password == password:
-            # If yes, add user_id and name to session
             session["user_id"] = existing_user.user_id
             session["user_name"] = existing_user.fname
             flash("Login Successful!")
             return redirect("/user/" + str(session["user_id"]))
-        # If no, alert user
         else:
             flash("Incorrect password.")
-    # If no, alert user
     else:
         flash("User does not exist.")
 
     return redirect(request.referrer)
-
-
-def get_recent_events(events, event_date):
-    """Get recent events of the current month in sorted order."""
-
-    # Get current date
-    current_date = datetime.now()
-
-    # Filter events from database where the event date is in the same month
-    # but after today's day
-    recent_events = events.filter(extract("month", event_date) == current_date.month,
-                                  extract("year", event_date) == current_date.year,
-                                  extract("day", event_date) >= current_date.day)
-
-    # Sort events is ascending order
-    ordered_recent_events = recent_events.order_by(event_date).all()
-
-    return ordered_recent_events
 
 
 @app.route("/user/<user_id>")
@@ -158,19 +137,10 @@ def get_recent_events(events, event_date):
 def show_user_page(user_id):
     """Show user's homepage."""
 
-    # Get products/presents from user table for user
-    products = Present.query.filter_by(user_id=user_id).all()
+    sidebar_info = get_sidebar_info(user_id)
 
-    # Get all the events for user
-    user_events = db.session.query(Event.event_id, Event.contact_id,
-                                   Event.event_name, Event.date, Contact.fname,
-                                   User.user_id).join(Contact).join(User).filter(User.user_id == user_id)
-
-    # Get events for the current month
-    current_events = get_recent_events(user_events, Event.date)
-
-    return render_template("home2.html", user=g.current_user, products=products,
-                           current_events=current_events, category_list=category_list)
+    return render_template("home.html", user=g.current_user, products=sidebar_info["products"],
+                           current_events=sidebar_info["current_events"], category_list=category_list)
 
 
 def check_and_add(existing_item, item):
@@ -179,6 +149,7 @@ def check_and_add(existing_item, item):
     # Check if it exists
     if existing_item:
         flash(item.__class__.__name__ + " already exists.")
+        return
     # If not, add to database
     else:
         add_to_database(item)
@@ -214,23 +185,6 @@ def add_contact():
 
 #     return render_template("contacts.html", user=g.current_user)
 
-@app.route("/contact.json")
-def get_contact_info():
-
-    contact_id = request.args.get("contact")
-
-    contact = Contact.query.get(contact_id)
-    events = []
-    interests = []
-    for event in contact.events:
-        events.append(event.to_dict())
-
-    for interest in contact.interests:
-        interests.append(interest.to_dict())
-
-    # print events
-    return jsonify({"contact": contact.to_dict(), "events": events, "interests": interests})
-
 
 @app.route("/contact/<contact_id>")
 def show_contact_details(contact_id):
@@ -238,10 +192,10 @@ def show_contact_details(contact_id):
 
     contact = Contact.query.get(contact_id)
 
-    return render_template("contact_details.html", contact=contact,
-                           user=g.current_user, category_list=category_list)
+    sidebar_info = get_sidebar_info(g.user_id)
 
-
+    return render_template("contact_details.html", contact=contact, products=sidebar_info["products"],
+                           user=g.current_user, category_list=category_list, current_events=sidebar_info["current_events"])
 
 
 @app.route("/add-event", methods=["POST"])
@@ -296,52 +250,6 @@ def edit_event():
 
 #     return render_template("events.html", events=g.current_user.events)
 
-@app.route("/event.json")
-def get_event_info():
-    event_id = request.args.get("event")
-
-    event = Event.query.get(event_id)
-    interests = event.contact.interests
-
-    event_presents = db.session.query(Present,
-                                      Event.event_id,
-                                      Status.status_name).join(PresentEvent).join(Event).join(Status).filter(Event.event_id == event_id)
-
-    selected = event_presents.filter(Status.status_name == "selected").all()
-    past = event_presents.filter(Status.status_name == "past").all()
-    bookmarked = event_presents.filter(Status.status_name == "bookmarked").all()
-
-    selected_presents = []
-    past_presents = []
-    bookmarked_presents = []
-    products = []
-
-    for present in selected:
-        selected_presents.append(present[0].to_dict())
-
-    for present in past:
-        past_presents.append(present[0].to_dict())
-
-    for present in bookmarked:
-        bookmarked_presents.append(present[0].to_dict())
-
-
-    for interest in interests:
-        # print interest
-        # print interest["title"]
-        # interest_json = json.loads(interest.data)
-        products.append(json.loads(interest.data))
-
-    # print products[0].get("title")
-
-
-    return jsonify({"contact": event.contact.to_dict(), "event": event.to_dict(),
-                    "selected": selected_presents, "past": past_presents,
-                    "bookmarked": bookmarked_presents, "products": products})
-
-
-
-
 
 @app.route("/event/<event_id>")
 def show_event_details(event_id):
@@ -350,6 +258,8 @@ def show_event_details(event_id):
     event = Event.query.get(event_id)
     interests = event.contact.interests
     product_list = []
+
+    sidebar_info = get_sidebar_info(g.user_id)
 
     event_presents = db.session.query(Present,
                                       Event.event_id,
@@ -364,9 +274,10 @@ def show_event_details(event_id):
         info = json.loads(interest.data)
         product_list.append(info["data"])
 
-    return render_template("event_details.html", event=event,
+    return render_template("event_details.html", event=event, user=g.current_user,
                            product_list=product_list, selected=selected, past=past,
-                           bookmarked=bookmarked)
+                           bookmarked=bookmarked, products=sidebar_info["products"],
+                           current_events=sidebar_info["current_events"])
 
 
 @app.route("/add-interest", methods=["POST"])
@@ -464,7 +375,8 @@ def get_json(products, compact=False):
     if compact:
         return jsonify({'data': product_list, "error": None})
     else:
-        return json.dumps(product_list)
+        # return json.dumps(product_list)
+        return json.dumps({'data': product_list, "error": None})
 
 
 @app.route("/similar")
@@ -521,8 +433,12 @@ def show_product(product_id):
 
     event_id = request.args.get("event_id")
 
+    sidebar_info = get_sidebar_info(g.user_id)
+
     product = amazonapi.lookup(product_id)
-    return render_template("product_details.html", product=product, event_id=event_id)
+    return render_template("product_details.html", product=product, event_id=event_id,
+                           products=sidebar_info["products"], current_events=sidebar_info["current_events"],
+                           user=g.current_user)
 
 
 @app.route("/logout")
@@ -530,9 +446,8 @@ def show_product(product_id):
 def process_logout():
     """Process logout."""
 
-    #session.clear()
-    session["user_id"] = ""
-    session["user_name"] = ""
+    session.clear()
+
     flash("Logout Successful.")
     return redirect("/")
 
