@@ -2,10 +2,6 @@
 {% block content %}
 
 
-
-
-
-
 <table style="width: 65%">
   <tr>
     <td>
@@ -43,7 +39,14 @@ $.get("/event-nums.json", function (data) {
     var myBarChart = new Chart(ctx, {
       type: 'bar',
       data: data,
-      options: options
+      options: {
+        legend: { display: false},
+        title: {
+          display: true,
+          text: "Number of Events in a Year"
+        }
+            }
+
     });
 
 });

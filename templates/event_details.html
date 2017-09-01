@@ -116,7 +116,6 @@
 
 <script>
 
-
   $(document).ready(function() {
 
     for (var i=1; i <= {{ product_size|safe }}; i++) {
@@ -124,11 +123,9 @@
 }
 });
 
-
-
 function openButton(j) {
   $("#product-button" + j).on("click", function() {
-  $(".myImage" + j ).show();
+  $(".myImage" + j ).fadeIn().slideDown(1000);
 
 });
 }
@@ -136,9 +133,6 @@ function openButton(j) {
 for (var i=1; i<= {{ product_size|safe }}; i++) {
   openButton(i);
 }
-
-
-
 
 </script>
 

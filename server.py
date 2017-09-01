@@ -57,8 +57,8 @@ def login_required(f):
 def index():
     """Homepage."""
 
-    if g.user_id:
-        return redirect("/user/" + str(g.user_id))
+    # if g.user_id:
+    #     return redirect("/user/" + str(g.user_id))
 
     return render_template("homepage.html")
 
@@ -459,7 +459,7 @@ def num_of_events_data():
                         ]
                     }]
 
-            }
+                }
 
     return jsonify(data_dict)
 
