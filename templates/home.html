@@ -18,70 +18,7 @@
 
 </div>
 
-
-
 <script src="/static/search.js" type="text/javascript"></script>
-
-
-
-<div id="addEvent" class="modal fade" role="dialog">
-  <div class="modal-dialog">
-
-    <!-- Modal content-->
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title">Add Event</h4>
-      </div>
-      <div class="modal-body">
-        <form action="/add-event" method="POST">
-          Contact: <select name="contact_id">
-
-          {% for contact in user.contacts %}
-          <option value= {{ contact.contact_id }}>{{ contact.fname }} {{ contact.lname}}</option>
-          {% endfor %}
-          </select><br/>
-          Event Name: <input type="text" name="ename"><br/>
-          Date: <input type="text" name="date"><br/>
-          <input type="submit" value="Add">
-        </form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-      </div>
-    </div>
-
-  </div>
-</div>
-
-
-
-
-
-<div id="addContact" class="modal fade" role="dialog">
-  <div class="modal-dialog">
-
-    <!-- Modal content-->
-    <div class="modal-content">
-      <div class="modal-header">
-        <button type="button" class="close" data-dismiss="modal">&times;</button>
-        <h4 class="modal-title">Add Contact</h4>
-      </div>
-      <div class="modal-body">
-        <form action="/add-contact" method="POST">
-  First Name: <input type="text" name="fname">
-  Last Name: <input type="text" name="lname">
-  <input type="submit" value="Add">
-</form>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-      </div>
-    </div>
-
-  </div>
-</div>
-
 
 
 {% endblock %}

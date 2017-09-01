@@ -13,7 +13,7 @@
             <br/><br/>
             <div style="vertical-align: top; width:75%;">
             <h4>{{ product.title }}</h4>
-            <p>${{ price }}
+            <p>{{ "$%.2f"|format(product.price_and_currency[0]) }}
 
               <form action="/bookmark" method="POST">
                 <input type="hidden" name="product_id" value="{{ product.asin }}">

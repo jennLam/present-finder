@@ -349,17 +349,6 @@ def get_json(products, compact=False):
         return json.dumps({'data': product_list, "error": None})
 
 
-@app.route("/similar")
-def find_similar():
-    """Find similar products."""
-
-    product = request.args.get("product")
-    products = amazonapi.get_similar(product)
-    # return products
-
-    return render_template("similar.html", products=products)
-
-
 @app.route("/bookmark", methods=["POST"])
 def bookmark_product():
     """Add products the user bookmarks to presents table in database."""
@@ -410,10 +399,9 @@ def show_product(product_id):
 
     sim_products = amazonapi.get_similar(product_id)
 
-    price = float(product.price_and_currency[0])
     return render_template("product_details.html", product=product, event_id=event_id,
                            products=sidebar_info["products"], current_events=sidebar_info["current_events"],
-                           user=g.current_user, price=price, sim_products=sim_products)
+                           user=g.current_user, sim_products=sim_products)
 
 
 @app.route("/logout")
