@@ -2,7 +2,14 @@
 {% block content %}
 
 
-<form id="searchBox">
+
+
+
+
+<table style="width: 65%">
+  <tr>
+    <td>
+      <form id="searchBox">
   <input type="text" name="name" id="textInput">
   <select name="category" id="catInput">
     {% for cat in category_list %}
@@ -12,11 +19,35 @@
   <input type="submit" value="Search">
 </form>
 <br/><br/>
+</td>
+</tr>
+  <tr>
+    <td>
+      <div id="searchResults">
+  <div class="event-chart">
+  <canvas id="eventChart"></canvas>
 
-
-<div id="searchResults">
+  </div>
 
 </div>
+</td>
+</tr>
+</table>
+
+<script>
+var options = { responsive: true };
+
+var ctx= $("#eventChart").get(0).getContext("2d");
+
+$.get("/event-nums.json", function (data) {
+    var myBarChart = new Chart(ctx, {
+      type: 'bar',
+      data: data,
+      options: options
+    });
+
+});
+</script>
 
 <script src="/static/search.js" type="text/javascript"></script>
 

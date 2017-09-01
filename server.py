@@ -8,7 +8,7 @@ from sqlalchemy import extract
 from functools import wraps
 import json
 import amazonapi
-from resource import get_recent_events, get_sidebar_info
+from resource import get_recent_events, get_sidebar_info, get_events_by_month
 
 app = Flask(__name__)
 
@@ -402,6 +402,66 @@ def show_product(product_id):
     return render_template("product_details.html", product=product, event_id=event_id,
                            products=sidebar_info["products"], current_events=sidebar_info["current_events"],
                            user=g.current_user, sim_products=sim_products)
+
+
+@app.route('/event-nums.json')
+def num_of_events_data():
+    """Return data about number of events."""
+
+    num_of_events = get_events_by_month(g.user_id).values()
+
+    data_dict = {
+                "labels": [
+                    "January",
+                    "February",
+                    "March",
+                    "April",
+                    "May",
+                    "June",
+                    "July",
+                    "August",
+                    "September",
+                    "October",
+                    "November",
+                    "December"
+                ],
+                "datasets": [
+                    {
+                        "data": num_of_events,
+                        "label": "Number of Events",
+                        "backgroundColor": [
+                            "#c70039",
+                            "#ff5733",
+                            "#ff8d1a",
+                            "#ffc300",
+                            "#eddd53",
+                            "#add45c",
+                            "#57c785",
+                            "#00baad",
+                            "#2a7b9b",
+                            "#3d3d6b",
+                            "#511849",
+                            "#900c3f",
+                        ],
+                        "hoverBackgroundColor": [
+                            "#c70039",
+                            "#3ff5733",
+                            "#Fff8d1a",
+                            "#3ffc300",
+                            "#eddd53",
+                            "#add45c",
+                            "#57c785",
+                            "#00baad",
+                            "#2a7b9b",
+                            "#3d3d6b",
+                            "#511849",
+                            "#900c3f",
+                        ]
+                    }]
+
+            }
+
+    return jsonify(data_dict)
 
 
 @app.route("/logout")

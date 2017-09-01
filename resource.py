@@ -21,6 +21,31 @@ def get_recent_events(events, event_date):
     return ordered_recent_events
 
 
+def get_events_by_month(user_id):
+    month_dict = {1: 0,
+                  2: 0,
+                  3: 0,
+                  4: 0,
+                  5: 0,
+                  6: 0,
+                  7: 0,
+                  8: 0,
+                  9: 0,
+                  10: 0,
+                  11: 0,
+                  12: 0}
+
+    events = db.session.query(Event.date,
+                              User.user_id).join(Contact).join(User).filter(User.user_id == user_id)
+
+    ordered_events = events.order_by(Event.date).all()
+
+    for event in ordered_events:
+        month_dict[event.date.month] += 1
+
+    return month_dict
+
+
 def get_user_products(user_id):
     """Get user's products."""
 
