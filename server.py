@@ -239,7 +239,6 @@ def show_event_details(event_id):
     past = event_presents.filter(Status.status_name == "past").all()
     bookmarked = event_presents.filter(Status.status_name == "bookmarked").all()
 
-    #ajax?
     for interest in interests:
         info = json.loads(interest.data)
         product_list.append(info["data"])
@@ -247,7 +246,7 @@ def show_event_details(event_id):
     return render_template("event_details.html", event=event, user=g.current_user,
                            product_list=product_list, selected=selected, past=past,
                            bookmarked=bookmarked, products=sidebar_info["products"],
-                           current_events=sidebar_info["current_events"])
+                           current_events=sidebar_info["current_events"], product_size=len(product_list))
 
 
 @app.route("/add-interest", methods=["POST"])

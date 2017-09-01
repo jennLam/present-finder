@@ -4,19 +4,9 @@
     <title>Present Finder</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 
-    <link rel="stylesheet" href="/static/datepicker.css">
-
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 
       <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-      <script src="/static/bootstrap-datepicker.js"></script>
-
-      <style>
-      .datepicker{z-index:1151 !important;}
-      #datepick > span:hover {
-        cursor:pointer;
-      }
-      </style>
 
   </head>
   <body>
@@ -178,18 +168,9 @@
           {% endfor %}
           </select><br/>
           Event Name: <input type="text" name="ename"><br/>
-          Date: <input class="datepicker" type="text" name="date"><br/>
+          Date: <input type="date" name="date"><br/>
           <input type="submit" value="Add">
         </form>
-
-        <script>
-  $(function() {
-    $(".datepicker").datepicker({
-      autoclose: true,
-      todayHighlight: true
-    }).datepicker("update", new Date());
-  });
-</script>
 
       </div>
       <div class="modal-footer">
@@ -199,9 +180,6 @@
 
   </div>
 </div>
-
-
-
 
 
 <div id="addContact" class="modal fade" role="dialog">
