@@ -16,6 +16,8 @@
   <tr>
     <td>
 
+      {% if selected %}
+
       <h4>Selected Presents</h4>
 
       {% for present in selected %}
@@ -28,10 +30,15 @@
         </div>
 
       {% endfor %}
+
+      {% endif %}
     </td>
   </tr>
   <tr>
     <td>
+
+      {% if past %}
+
       <h4>Past Presents</h4>
 
       {% for present in past %}
@@ -45,10 +52,14 @@
         </div>
 
       {% endfor %}
+
+      {% endif %}
     </td>
   </tr>
   <tr>
     <td>
+
+      {% if bookmarked %}
       <h4>Bookmarked Presents</h4>
 
       {% for present in bookmarked %}
@@ -61,17 +72,22 @@
         </div>
         
       {% endfor %}
+
+      {% endif %}
     </td>
   </tr>
   <tr>
     <td>
 
-      <h4>Suggested Presents<button id="pbutton">Click</button></h4>
+      {% if product_list %}
+
+      <h4>Suggested Presents</h4>
 
       {% for products in product_list %}
-        
       {% set count = loop.index %}
-          {% for product in products %}
+        <h4>{{products[0]}} <button id="product-button{{ count }}">See All</button></h4>
+      
+          {% for product in products[1] %}
 
           <div class="myImage{{ count }}" style="display: inline-block; width: 200px; vertical-align: top;">
             <form action="/bookmark" method="POST">
@@ -92,6 +108,8 @@
           <br/><br/>
         
       {% endfor %}
+
+      {% endif %}
     </td>
   </tr>
 </table>
@@ -101,18 +119,26 @@
 
   $(document).ready(function() {
 
-    for (var i=1; i <= {{product_size|safe}}; i++) {
+    for (var i=1; i <= {{ product_size|safe }}; i++) {
   $('.myImage' + i).slice(5).hide();
 }
 });
 
 
 
-$("#pbutton").on("click", function(evt) {
-  for (var i=1; i < {{product_size|safe}}; i++) {
-  $(".myImage" + i ).show();
+function openButton(j) {
+  $("#product-button" + j).on("click", function() {
+  $(".myImage" + j ).show();
+
+});
 }
-})
+
+for (var i=1; i<= {{ product_size|safe }}; i++) {
+  openButton(i);
+}
+
+
+
 
 </script>
 

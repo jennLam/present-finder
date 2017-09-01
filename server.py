@@ -241,7 +241,8 @@ def show_event_details(event_id):
 
     for interest in interests:
         info = json.loads(interest.data)
-        product_list.append(info["data"])
+        interest_full_name = interest.name + " " + interest.category
+        product_list.append((interest_full_name, info["data"]))
 
     return render_template("event_details.html", event=event, user=g.current_user,
                            product_list=product_list, selected=selected, past=past,
