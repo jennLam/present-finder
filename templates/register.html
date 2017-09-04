@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Present Finder</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+    <style>
+
+    .container {
+      margin: 0;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    </style>
+  </head>
+  <body>
+
+    <div class="container">
+      <div class="row">
+        <div class="visible-md visible-lg col-md-5 col-md-offset-1">
+          <br/><br/><br/>
+          <img class="img-responsive" src='/static/pflogo.png'>
+        </div>
+        <div class="col-md-5 col-sm-6 col-sm-offset-3 col-xs-8 col-xs-offset-2 col-md-offset-0">
+        <form action="/login" method="POST">
+          <div class="form-group">
+            <form action="/register" method="POST">
+              <label>First Name:</label>
+              <input type="text" class="form-control" name="fname" placeholder="Enter first name" required><br/>
+              <label>Last Name:</label>
+              <input type="text" class="form-control" name="lname" placeholder="Enter last name" required><br/>
+              <label>Username:</label>
+              <input type="text" class="form-control" name="uname" placeholder="Enter username" required><br/>
+              <label>Email:</label>
+              <input type="email" class="form-control" name="email" placeholder="Enter email" required><br/>
+              <label>Password:</label>
+              <input type="password" class="form-control" name="password" placeholder="Enter password" required><br/>
+              <label>Notification:</label>
+              <select name="notification"class="form-control">
+                <option value=True>Yes</option>
+                <option value=False>No</option>
+              </select>
+              <br/>
+              <button type="submit" class="btn btn-default">Submit</button>
+            </form>
+            <br/><br/>
+            Already have an account? <a href="/">Login here!</a>
+          </div>
+        </div>
+      </div>
+
+  </body>
+</html>

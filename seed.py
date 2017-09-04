@@ -5,6 +5,7 @@ from model import User, Contact, Interest, Event, Present, Intensity, Status
 from model import connect_to_db, db
 from server import app
 from datetime import datetime
+from update_pkey_seqs import update_pkey_seqs
 
 
 def load_users():
@@ -96,43 +97,43 @@ def load_statuses():
     db.session.commit()
 
 
-def set_val_user_id():
-    """Set value for the next user_id after seeding database"""
+# def set_val_user_id():
+#     """Set value for the next user_id after seeding database"""
 
-    # Get the Max user_id in the database
-    result = db.session.query(func.max(User.user_id)).one()
-    max_id = int(result[0])
+#     # Get the Max user_id in the database
+#     result = db.session.query(func.max(User.user_id)).one()
+#     max_id = int(result[0])
 
-    # Set the value for the next user_id to be max_id + 1
-    query = "SELECT setval('users_user_id_seq', :new_id)"
-    db.session.execute(query, {'new_id': max_id + 1})
-    db.session.commit()
-
-
-def set_val_contact_id():
-    """Set value for the next id after seeding database"""
-
-    # Get the Max user_id in the database
-    result = db.session.query(func.max(Contact.contact_id)).one()
-    max_id = int(result[0])
-
-    # Set the value for the next user_id to be max_id + 1
-    query = "SELECT setval('contacts_contact_id_seq', :new_id)"
-    db.session.execute(query, {'new_id': max_id + 1})
-    db.session.commit()
+#     # Set the value for the next user_id to be max_id + 1
+#     query = "SELECT setval('users_user_id_seq', :new_id)"
+#     db.session.execute(query, {'new_id': max_id + 1})
+#     db.session.commit()
 
 
-def set_val_event_id():
-    """Set value for the next id after seeding database"""
+# def set_val_contact_id():
+#     """Set value for the next id after seeding database"""
 
-    # Get the Max user_id in the database
-    result = db.session.query(func.max(Event.event_id)).one()
-    max_id = int(result[0])
+#     # Get the Max user_id in the database
+#     result = db.session.query(func.max(Contact.contact_id)).one()
+#     max_id = int(result[0])
 
-    # Set the value for the next user_id to be max_id + 1
-    query = "SELECT setval('events_event_id_seq', :new_id)"
-    db.session.execute(query, {'new_id': max_id + 1})
-    db.session.commit()
+#     # Set the value for the next user_id to be max_id + 1
+#     query = "SELECT setval('contacts_contact_id_seq', :new_id)"
+#     db.session.execute(query, {'new_id': max_id + 1})
+#     db.session.commit()
+
+
+# def set_val_event_id():
+#     """Set value for the next id after seeding database"""
+
+#     # Get the Max user_id in the database
+#     result = db.session.query(func.max(Event.event_id)).one()
+#     max_id = int(result[0])
+
+#     # Set the value for the next user_id to be max_id + 1
+#     query = "SELECT setval('events_event_id_seq', :new_id)"
+#     db.session.execute(query, {'new_id': max_id + 1})
+#     db.session.commit()
 
 
 if __name__ == "__main__":
@@ -147,6 +148,7 @@ if __name__ == "__main__":
     # load_interests()
     load_events()
     load_statuses()
-    set_val_user_id()
-    set_val_contact_id()
-    set_val_event_id()
+    update_pkey_seqs
+    # set_val_user_id()
+    # set_val_contact_id()
+    # set_val_event_id()

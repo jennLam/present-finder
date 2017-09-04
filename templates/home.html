@@ -1,6 +1,9 @@
 {% extends "base.html" %}
+{% import "test.html" as test %}
 {% block content %}
 
+{{ test.render('example of a thing i would pass to render') }}
+{% include "test.html" %}
 
 <table style="width: 65%">
   <tr>

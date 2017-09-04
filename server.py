@@ -57,8 +57,8 @@ def login_required(f):
 def index():
     """Homepage."""
 
-    # if g.user_id:
-    #     return redirect("/user/" + str(g.user_id))
+    if g.user_id:
+        return redirect("/user/" + str(g.user_id))
 
     return render_template("homepage.html")
 
@@ -68,6 +68,10 @@ def add_to_database(item):
 
     db.session.add(item)
     db.session.commit()
+
+@app.route("/register")
+def show_register_form():
+    return render_template("register.html")
 
 
 @app.route("/register", methods=["POST"])
@@ -92,7 +96,7 @@ def process_register_info():
     # Check database, add to database
     check_and_add(existing_user, new_user)
 
-    return redirect(request.referrer)
+    return redirect("/")
 
 
 @app.route("/login", methods=["POST"])
@@ -347,6 +351,105 @@ def get_json(products, compact=False):
     else:
         # return json.dumps(product_list)
         return json.dumps({'data': product_list, "error": None})
+
+
+@app.route("/product.json")
+def check_bookmark():
+    product_id = request.form.get("product")
+    event_id = request.form.get("event")
+    status_name = request.form.get("status")
+
+    existing_product = db.session.query(Present.present_id,
+                                        Status.status_name,
+                                        Event.event_id).join(Status).join(PresentEvent).join(Event).filter(Present.present_id == product_id,
+                                                                                                           Event.event_id == event_id)
+
+    if existing_product.filter(Status.status_name == status_name).first():
+        return jsonify({"exists": True})
+
+
+@app.route("/exists.json")
+def bookmark_exists():
+    event_id = request.args.get("event")
+    status_name = request.args.get("status")
+    bookmarked = []
+
+    existing_products = db.session.query(Present.present_id).join(Status).join(PresentEvent).join(Event).filter(Event.event_id == event_id,
+                                                                                                                Status.status_name == status_name)
+    for product in existing_products:
+        bookmarked.append(product[0])
+
+    # print bookmarked
+
+    return jsonify({"bookmarked": bookmarked})
+
+
+
+
+
+
+@app.route("/bookmark.json", methods=["POST"])
+def bookmark_items():
+
+    product_id = request.form.get("product")
+    event_id = request.form.get("event")
+    status_name = request.form.get("status")
+    # bookmark = request.form.get("bookmark")
+
+    print product_id, event_id, status_name
+
+    # Get product from amazon api through product_id
+    product = amazonapi.lookup(product_id)
+
+    # Get product from database
+    existing_product = db.session.query(Present.present_id,
+                                        Status.status_name,
+                                        Event.event_id).join(Status).join(PresentEvent).join(Event).filter(Present.present_id == product.asin,
+                                                                                                           Event.event_id == event_id)
+
+    if existing_product.filter(Status.status_name == status_name).first():
+        flash("You have already liked this product.")
+
+    elif existing_product.first():
+        existing_present = Present.query.filter_by(present_id=product_id).first()
+        status_id = db.session.query(Status.status_id).filter(Status.status_name == status_name).first()
+        existing_present.status_id = status_id
+
+        db.session.commit()
+
+    else:
+        status_id = db.session.query(Status.status_id).filter(Status.status_name == status_name).first()
+        add_to_database(Present(present_id=product.asin, status_id=status_id,
+                                present_name=product.title, url=product.detail_page_url,
+                                img_url=product.medium_image_url))
+
+        add_to_database(PresentEvent(present_id=product.asin, event_id=event_id))
+
+    return jsonify({'data': product_id})
+
+
+@app.route("/unbookmark.json", methods=["POST"])
+def unbookmark_items():
+
+    product_id = request.form.get("product")
+    event_id = request.form.get("event")
+    status_name = request.form.get("status")
+    # bookmark = request.form.get("bookmark")
+
+    print product_id, event_id, status_name
+
+    existing_product = db.session.query(Present.present_id,
+                                        PresentEvent.presentevent_id,
+                                        Status.status_name,
+                                        Event.event_id).join(Status).join(PresentEvent).join(Event).filter(Present.present_id == product_id,
+                                                                                                           Event.event_id == event_id,
+                                                                                                           Status.status_name == status_name).first()
+    if existing_product:
+        PresentEvent.query.filter_by(presentevent_id=existing_product.presentevent_id).delete()
+        Present.query.filter_by(present_id=product_id).delete()
+        db.session.commit()
+
+    return jsonify({'data': product_id})
 
 
 @app.route("/bookmark", methods=["POST"])
