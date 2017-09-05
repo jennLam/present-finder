@@ -1,19 +1,21 @@
   function showBookmark(results) {
-    console.log(results.data);
-    var num = results.data;
+    console.log(results.id);
+    var num = results.id;
 
       $("#bookmark" + num).css("color", "#c70039");
       // window.location.reload();
       // $("#bookmarkedPresents").load("#bookmarkedPresents")
+      $("#bookmarkedPresents").append("<div class='product-display' id='prod'" + results.id +"><p><img class='img-responsive' src='" + results.image + "'></p><div class='product-display-title'><a class='display-title-link' href='/product-details/" + results.id + "?event_id="+ results.event +"'><p>"+ results.title +"</p></a></div></div>");
 
   }
 
     function unBookmark(results) {
-    console.log(results.data);
-    var num = results.data;
+    console.log(results.id);
+    var num = results.id;
    
       $("#bookmark" + num).css("color", "#454545");
-      // window.location.reload();
+      $("#bookmarkedPresents").remove("#prod" + num);
+      window.location.reload();
       // $("#bookmarkedPresents").load()
  
   }
@@ -24,6 +26,9 @@
       "product": $(this).data("productId"),
       "event": $(this).data("eventId"),
       "status": $(this).data("statusName"),
+      "image": $(this).data("productImgurl"),
+      "url": $(this).data("productUrl"),
+      "title": $(this).data("productTitle")
 
     };
     console.log(bookmarkInfo);

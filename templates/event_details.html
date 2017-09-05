@@ -78,7 +78,7 @@
 
       {% for present in bookmarked %}
           
-        <div class="product-display">
+        <div class="product-display" id="prod{{ present.Present.present_id }}">
           
             <p><img class="img-responsive" src="{{ present.Present.img_url }}"></p>
             <div class="product-display-title">
@@ -111,7 +111,7 @@
 
           <div class="myImage{{ count }} product-display">
 
-            <a href="#" data-product-id="{{ product["id"] }}" data-event-id="{{ event.event_id }}" data-status-name="bookmarked" class="bookmark-link">
+            <a href="#" data-product-id="{{ product["id"] }}" data-event-id="{{ event.event_id }}" data-status-name="bookmarked" data-product-imgurl="{{ product.img_url}}" data-product-title="{{ product["title"]}}" data-product-url="{{ product.url}}" class="bookmark-link">
               <span id="bookmark{{ product["id"] }}" class="glyphicon glyphicon-bookmark" data-product-id="{{ product["id"] }}"></span>
             </a>
 

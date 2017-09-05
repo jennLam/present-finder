@@ -423,17 +423,20 @@ def bookmark_items():
     product_id = request.form.get("product")
     event_id = request.form.get("event")
     status_name = request.form.get("status")
+    image = request.form.get("image")
+    url = request.form.get("url")
+    title = request.form.get("title")
     # bookmark = request.form.get("bookmark")
 
     print product_id, event_id, status_name
 
     # Get product from amazon api through product_id
-    product = amazonapi.lookup(product_id)
+    # product = amazonapi.lookup(product_id)
 
     # Get product from database
     existing_product = db.session.query(Present.present_id,
                                         Status.status_name,
-                                        Event.event_id).join(Status).join(PresentEvent).join(Event).filter(Present.present_id == product.asin,
+                                        Event.event_id).join(Status).join(PresentEvent).join(Event).filter(Present.present_id == product_id,
                                                                                                            Event.event_id == event_id)
 
     if existing_product.filter(Status.status_name == status_name).first():
@@ -448,13 +451,16 @@ def bookmark_items():
 
     else:
         status_id = db.session.query(Status.status_id).filter(Status.status_name == status_name).first()
-        add_to_database(Present(present_id=product.asin, status_id=status_id,
-                                present_name=product.title, url=product.detail_page_url,
-                                img_url=product.medium_image_url))
+        add_to_database(Present(present_id=product_id, status_id=status_id,
+                                present_name=title, url=url,
+                                img_url=image))
 
-        add_to_database(PresentEvent(present_id=product.asin, event_id=event_id))
+        add_to_database(PresentEvent(present_id=product_id, event_id=event_id))
 
-    return jsonify({'data': product_id})
+    if len(title) > 50:
+        title[0:49]
+
+    return jsonify({'id': product_id, 'image': image, 'title': title, 'event': event_id})
 
 
 @app.route("/unbookmark.json", methods=["POST"])
@@ -477,7 +483,7 @@ def unbookmark_items():
         Present.query.filter_by(present_id=product_id).delete()
         db.session.commit()
 
-    return jsonify({'data': product_id})
+    return jsonify({'id': product_id})
 
 
 @app.route("/bookmark", methods=["POST"])
