@@ -35,8 +35,10 @@
 
             </p>
             <p>{{ product.editorial_review }}</p>
+            <a href="/event/{{event_id}}">GO BACK</a>
           </div>
         </div>
+        <br/><br/>
  <!--          </td>
           
           <tr>
@@ -50,7 +52,7 @@
     
     <div class="product-display">
 
-      <a href="#" data-product-id="{{ sim_product.asin }}" data-event-id="{{ event_id }}" data-status-name="bookmarked" class="bookmark-link">
+      <a href="#" data-product-id="{{ sim_product.asin }}" data-event-id="{{ event_id }}" data-status-name="bookmarked" data-product-imgurl="{{ sim_product.medium_image_url}}" data-product-title="{{ sim_product.title }}" data-product-url="{{ sim_product.detail_page_url}}"class="bookmark-link">
             <span id="bookmark{{ sim_product.asin }}" class="glyphicon glyphicon-bookmark" data-product-id="{{ sim_product.asin }}"></span>
           </a>
 
