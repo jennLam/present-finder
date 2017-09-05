@@ -1,0 +1,81 @@
+body {
+  background-image: url("/static/sativa.png");
+  font-family: 'Roboto', sans-serif;
+}
+
+#pf-header {
+  font-family: 'Lilita One', cursive;
+}
+
+#r {
+  color: #c70039;
+}
+
+#ro {
+  color: #ff5733;
+}
+
+#o {
+  color: #ff8d1a;
+}
+
+#oy {
+  color: #ffc300;
+}
+
+#y {
+  color: #eddd53;
+}
+
+#yg {
+  color: #add45c;
+}
+
+#g {
+  color: #57c785;
+}
+
+#t {
+  color: #00baad;
+}
+
+#b {
+  color: #2a7b9b;
+}
+
+#db {
+  color: #3d3d6b;
+}
+
+#p {
+  color: #511849;
+}
+
+#m {
+  color: #900c3f;
+}
+
+.glyphicon {
+  color: #454545;
+}
+
+
+.sidebar {
+  width: 18%;
+  float: left;
+  padding: 10px;
+  margin-left: 3%;
+  margin-right: 0%;
+  background-color: #f8f8f8;
+  border: 0px solid red;
+}
+
+.mainpage {
+  width: 75%;
+  float: right;
+  padding: 10px;
+  margin-right: 3%;
+  margin-left: 0%;
+  background-color: #f8f8f8;
+  border: 0px solid red;
+}

@@ -129,8 +129,11 @@ def show_user_page(user_id):
 
     sidebar_info = get_sidebar_info(user_id)
 
-    return render_template("home.html", user=g.current_user, products=sidebar_info["products"],
-                           current_events=sidebar_info["current_events"], category_list=category_list)
+    # return render_template("home.html", user=g.current_user, products=sidebar_info["products"],
+    #                        current_events=sidebar_info["current_events"], category_list=category_list)
+
+    return render_template("home.html", user=g.current_user, current_events=sidebar_info["current_events"],
+                            category_list=category_list)
 
 
 def check_and_add(existing_item, item):
@@ -179,6 +182,13 @@ def show_contact_details(contact_id):
     return render_template("contact_details.html", contact=contact, products=sidebar_info["products"],
                            user=g.current_user, category_list=category_list, current_events=sidebar_info["current_events"])
 
+
+@app.route("/events")
+@login_required
+def show_events():
+    """Show a list of events."""
+
+    return render_template("events.html", events=g.current_user.events, user=g.current_user)
 
 @app.route("/add-event", methods=["POST"])
 def add_event():
@@ -251,7 +261,8 @@ def show_event_details(event_id):
     return render_template("event_details.html", event=event, user=g.current_user,
                            product_list=product_list, selected=selected, past=past,
                            bookmarked=bookmarked, products=sidebar_info["products"],
-                           current_events=sidebar_info["current_events"], product_size=len(product_list))
+                           current_events=sidebar_info["current_events"],
+                           product_size=len(product_list), all_events=g.current_user.events)
 
 
 @app.route("/add-interest", methods=["POST"])

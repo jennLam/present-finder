@@ -6,23 +6,35 @@
 {% include "test.html" %} -->
 
 
-<div class="mainpage">
-      <form class="navbar-form" id="searchBox">
-  <input class="form-control" type="text" name="name" id="textInput" placeholder="Search Products">
-  <select class="form-control" name="category" id="catInput">
+
+
+<table style="width: 65%">
+  <tr>
+    <td>
+      <form id="searchBox">
+  <input type="text" name="name" id="textInput">
+  <select name="category" id="catInput">
     {% for cat in category_list %}
     <option value="{{ cat }}">{{ cat }}</option>
     {% endfor %}
   </select>
-  <button class="btn btn-default" type="submit"><span class="glyphicon glyphicon-search"></span></button>
+  <input type="submit" value="Search">
 </form>
-<div id="searchResults">
+<br/><br/>
+</td>
+</tr>
+  <tr>
+    <td>
+      <div id="searchResults">
   <div class="event-chart">
   <canvas id="eventChart"></canvas>
 
   </div>
+
 </div>
-</div>
+</td>
+</tr>
+</table>
 
 <script>
 var options = { responsive: true };

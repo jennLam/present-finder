@@ -10,9 +10,11 @@
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.2.1/Chart.js"></script>
 
-    <link rel="stylesheet" type="text/css" href="/static/presentfinder.css">
-
-    <link href="https://fonts.googleapis.com/css?family=Lilita+One|Roboto" rel="stylesheet">
+    <style>
+    .navbar-inverse {
+      background-color: #686868;
+    }
+    </style>
 
   </head>
   <body>
@@ -28,7 +30,18 @@
           <span class="icon-bar"></span>
         </button>
 
-        <h3><a href="/"><span class="glyphicon glyphicon-gift"><span id="pf-header"> <span id="r">P</span><span id="ro">R</span><span id="o">E</span><span id="oy">S</span><span id="y">E</span><span id="yg">N</span><span id="g">T</span> <span id="t">F</span><span id="b">I</span><span id="db">N</span><span id="p">D</span><span id="m">E</span><span id="r">R</span></span></span></a></h3>
+        <table>
+          <tr>
+            <td style="vertical-align: top;">
+              <h3><span class="glyphicon glyphicon-gift"></span></h3>
+            </td>
+            <td>
+              <a class="navbar-brand" href="/">
+              <img class="img-responsive" src='/static/pflogowords.png' style="height:30px"></a>
+            </td>
+          </tr>
+        </table>
+
 
       </div>
 
@@ -50,9 +63,9 @@
             <li><a href="#" data-toggle="modal" data-target="#registerForm">Register</a></li>
           {% endif %}
 
-          <!-- <li><a href="#"><span class="glyphicon glyphicon-calendar"></span> EVENTS</a></li>
+          <li><a href="#"><span class="glyphicon glyphicon-calendar"></span> EVENTS</a></li>
 
-          <li><a href="#"><span class="glyphicon glyphicon-list-alt"></span> CONTACTS</a></li> -->
+          <li><a href="#"><span class="glyphicon glyphicon-list-alt"></span> CONTACTS</a></li>
 
           {% if session.get("user_id") %}
             <li><a href="/logout"><span class="glyphicon glyphicon-log-out"></span> LOGOUT</a></li>
@@ -67,16 +80,14 @@
 
 
   {% if session.get("user_id") %}
-    <div class="sidebar">
+    <div class="sidebar" style="width:25%;float:right;">
       <h4><span class="glyphicon glyphicon-calendar"></span> EVENTS
-        <a href class="badge pull-right" data-toggle="modal" data-target="#addEvent">+</a>
+        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#addEvent">+</button>
       </h4><br/>
 
       {% for event in current_events %}
-        
-        <a id="eventLink" href="/event/{{ event.event_id }}">{{ event.fname}}'s {{ event.event_name }}</a><br/>
-        {{event.date.strftime("%a %b %e")}}<br/>
-        <br/>
+        {{event.date.strftime("%m-%d-%Y")}}<br/>
+        <a id="eventLink" href="/event/{{ event.event_id }}">{{ event.fname}}'s {{ event.event_name }}</a><br/><br/>
       {% endfor %}
 
 
@@ -87,7 +98,7 @@
 
 
       <h4><span class="glyphicon glyphicon-list-alt"></span> CONTACTS
-        <a href class="badge pull-right" data-toggle="modal" data-target="#addContact">+</a></h4>
+        <button type="button" class="btn btn-info" data-toggle="modal" data-target="#addContact">+</button></h4>
         <br/>
         {% for contact in user.contacts %}
           <a href="/contact/{{contact.contact_id}}">{{ contact.fname }} {{ contact.lname }}</a><br/>
@@ -156,7 +167,65 @@
 
 
 
+  <div id="registerForm" class="modal fade" role="dialog">
+    <div class="modal-dialog">
 
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Register</h4>
+        </div>
+        <div class="modal-body">
+          
+          <form action="/register" method="POST">
+            First Name: <input type="text" name="fname" required><br/>
+            Last Name: <input type="text" name="lname" required><br/>
+            Username: <input type="text" name="uname" required><br/>
+            Email: <input type="email" name="email" required><br/>
+            Password: <input type="password" name="password" required><br/>
+            Notification: <select name="notification">
+            <option value=True>Yes</option>
+            <option value=False>No</option>
+            </select>
+            <input type="submit" value="Create Account">
+          </form>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+
+  <div id="loginForm" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+      <!-- Modal content-->
+      <div class="modal-content">
+        <div class="modal-header">
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+          <h4 class="modal-title">Login</h4>
+        </div>
+        <div class="modal-body">
+          
+            <form action="/login" method="POST">
+              Username: <input type="text" name="username" required><br/>
+              Password: <input type="password" name="password" required><br/>
+              <input type="submit" value="Login">
+            </form>
+
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
 
 
   {% for message in get_flashed_messages() %}

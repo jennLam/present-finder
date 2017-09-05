@@ -148,7 +148,7 @@ if __name__ == "__main__":
     # load_interests()
     load_events()
     load_statuses()
-    update_pkey_seqs
+    update_pkey_seqs()
     # set_val_user_id()
     # set_val_contact_id()
     # set_val_event_id()

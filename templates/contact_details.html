@@ -1,12 +1,13 @@
 {% extends "base.html" %}
 {% block content %}
 
+<div class="mainpage">
 <h4>{{ contact.fname }} {{ contact.lname }}</h4>
 
 <h4>Events
-  <button type="button" class="btn btn-info" data-toggle="modal" data-target="#addEvent">
+  <!-- <button type="button" class="btn btn-info" data-toggle="modal" data-target="#addEvent">
   Add Event
-  </button>
+  </button> -->
 </h4>
 
 {% for event in contact.events %}
@@ -27,6 +28,7 @@
   </form>
   <br/>
 {% endfor %}
+</div>
 
 <div id="addInterest" class="modal fade" role="dialog">
   <div class="modal-dialog">
