@@ -3,72 +3,75 @@
 
 
     <div class="mainpage">
-      <table>
+<!--       <table>
 
         <tr>
-          <td style="width:35%;">
+          <td style="width:35%;"> -->
+            <div style="width:100%; padding:0; margin:0;">
+            <div class="product-detail-image">
             <img src="{{ product.large_image_url }}" class="img-responsive">
-          </td>
+          </div>
+<!--           </td>
           <td style="vertical-align: top; width:50%;">
-            <br/><br/>
-            <div style="vertical-align: top; width:75%;">
-            <h4>{{ product.title }}</h4>
-            <p>{{ "$%.2f"|format(product.price_and_currency[0]) }}
-
-              <form action="/bookmark" method="POST">
+            <br/><br/> -->
+            <div class="product-detail-desc">
+            <h4 class="product-desc-title">{{ product.title }}</h4>
+            <hr>
+            <h5>&nbsp&nbsp&nbsp&nbsp&nbsp{{ "$%.2f"|format(product.price_and_currency[0]) }}</h5>
+            <div class="form-group">
+              <form class="navbar-form" action="/bookmark" method="POST">
                 <input type="hidden" name="product_id" value="{{ product.asin }}">
                 <input type="hidden" name="event_id" value="{{ event_id }}">
 
-                <select name="status_name">
+                <select class="form-control" name="status_name">
                   <option value="bookmarked">Bookmark</option>
                   <option value="selected">Select</option>
+                  <option value="past">Past</option>
                 </select>
-                <input type="submit" value="Go">
+                <button class="btn btn-default" type="submit"><span class="glyphicon glyphicon-folder-close"></span></button>
               </form>
+            </div>
+
 
             </p>
             <p>{{ product.editorial_review }}</p>
           </div>
-          </td>
+        </div>
+ <!--          </td>
           
           <tr>
             <td colspan="2">
               <br/>
               <br/>
               <br/>
-              <div>
-                <h4>Similar Products</h4>
+              <div> -->
+                <h4 class="header"><span class="glyphicon glyphicon-certificate"></span> SIMILAR PRESENTS</h4>
         {% for sim_product in sim_products %}
     
-    <div style="display: inline-block; width: 200px; vertical-align: top;">
+    <div class="product-display">
 
       <a href="#" data-product-id="{{ sim_product.asin }}" data-event-id="{{ event_id }}" data-status-name="bookmarked" class="bookmark-link">
-            <span id="bookmark{{ sim_product.asin }}" class="glyphicon glyphicon-bookmark" data-product-id="{{ sim_product.asin }}" style="color:red"></span>
+            <span id="bookmark{{ sim_product.asin }}" class="glyphicon glyphicon-bookmark" data-product-id="{{ sim_product.asin }}"></span>
           </a>
-      
-<!--       <form action="/bookmark" method="POST">
-        <input type="hidden" name="product_id" value="{{ sim_product.asin }}">
-        <input type="hidden" name="event_id" value="{{ event_id}}">
-        <input type="hidden" name="status_name" value="bookmarked">
-        <input type="submit" value="Bookmark">
-      </form> -->
 
-      <p><img src="{{ sim_product.medium_image_url }}"></p>
+      <p><img class="img-responsive" src="{{ sim_product.medium_image_url }}"></p>
 
-      <a href="/product-details/{{ sim_product.asin }}?event_id={{ event_id }}">
+      <div class="product-display-title">
+      <a class="display-title-link" href="/product-details/{{ sim_product.asin }}?event_id={{ event_id }}">
         <p>{{ sim_product.title | truncate(50) }}</p>
         </a>
+      </div>
         
 
     </div>
   
 {% endfor %}
 </div>
-            </td>
+ <!--            </td>
           </tr>
 
       </table>
-
+ -->
 
      
 

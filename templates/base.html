@@ -35,11 +35,6 @@
       <!-- Collect the nav links, forms, and other content for toggling -->
       <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
         <ul class="nav navbar-nav">
-        
-<!--           {% if session.get("user_id") %}
-            <li class="active"><a href="/user/{{ session['user_id'] }}">Home<span class="sr-only">(current)</span></a></li>
-          {% endif %} -->
-        
 
         </ul>
       
@@ -50,10 +45,6 @@
             <li><a href="#" data-toggle="modal" data-target="#registerForm">Register</a></li>
           {% endif %}
 
-          <!-- <li><a href="#"><span class="glyphicon glyphicon-calendar"></span> EVENTS</a></li>
-
-          <li><a href="#"><span class="glyphicon glyphicon-list-alt"></span> CONTACTS</a></li> -->
-
           {% if session.get("user_id") %}
             <li><a href="/logout"><span class="glyphicon glyphicon-log-out"></span> LOGOUT</a></li>
           {% else %}
@@ -61,16 +52,17 @@
           {% endif %}
         
         </ul>
-      </div><!-- /.navbar-collapse -->
-    </div><!-- /.container-fluid -->
+      </div>
+    </div>
   </nav>
 
 
   {% if session.get("user_id") %}
     <div class="sidebar">
-      <h4><span class="glyphicon glyphicon-calendar"></span> EVENTS
+      <h4 class="header"><span class="glyphicon glyphicon-calendar"></span> EVENTS THIS MONTH
         <a href class="badge pull-right" data-toggle="modal" data-target="#addEvent">+</a>
-      </h4><br/>
+      </h4>
+      <hr>
 
       {% for event in current_events %}
         
@@ -86,9 +78,10 @@
       <script src="http://unpkg.com/babel-standalone"></script>
 
 
-      <h4><span class="glyphicon glyphicon-list-alt"></span> CONTACTS
+      <h4 class="header"><span class="glyphicon glyphicon-list-alt"></span> CONTACTS
         <a href class="badge pull-right" data-toggle="modal" data-target="#addContact">+</a></h4>
-        <br/>
+        <hr>
+
         {% for contact in user.contacts %}
           <a href="/contact/{{contact.contact_id}}">{{ contact.fname }} {{ contact.lname }}</a><br/>
         {% endfor %}
@@ -151,13 +144,6 @@
       </div>
     </div>
   {% endif %}
-
-
-
-
-
-
-
 
   {% for message in get_flashed_messages() %}
     {{ message }}

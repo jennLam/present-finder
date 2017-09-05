@@ -3,114 +3,125 @@
 {% block content %}
 
 <div class="mainpage">
-<table>
+<!-- <table>
   <tr>
-    <td>
-      <h4>Event Details <button type="button" class="btn btn-info" data-toggle="modal" data-target="#editEvent">
-      Edit Event</button></h4>
-    </td>
+    <td> -->
+<!--       <h4>Event Details <button type="button" class="btn btn-info" data-toggle="modal" data-target="#editEvent">
+      Edit Event</button></h4> -->
+<!--     </td>
   </tr>
   <tr>
-    <td>
-      <a href="/contact/{{ event.contact.contact_id }}">{{ event.contact.fname }} {{ event.contact.lname }}'s</a> {{ event.event_name }} {{event.date.strftime("- %A, %B %d, %Y")}}
-    </td>
+    <td> -->
+      <h3 class="main-header"><span class="glyphicon glyphicon-pushpin"><span class="main-text"><a href="/contact/{{ event.contact.contact_id }}"> {{ event.contact.fname|upper}} {{ event.contact.lname|upper }}'S</a> {{ event.event_name|upper }}<br/>
+        <a href class="badge" class="btn btn-info" data-toggle="modal" data-target="#editEvent">-</a>&nbsp&nbsp&nbsp
+        {{event.date.strftime("%A, %B %d")}}</span></span>
+    </h3>
+    <hr>
+ <!--    </td>
   </tr>
   <tr>
-    <td>
+    <td> -->
 
       {% if selected %}
 
-      <h4>Selected Presents</h4>
+      <h4 class="header"><span class="glyphicon glyphicon-tag"></span> SELECTED PRESENTS</h4>
 
       {% for present in selected %}
       
-        <div style="display: inline-block; width: 200px; vertical-align: top;">
-          <a href="/product-details/{{ present.Present.present_id }}?event_id={{ event.event_id }}">
-          <p>{{ present.Present.present_name }}</p>
-          </a>
-          <img src="{{ present.Present.img_url }}">
+        <div class="product-display">
+          
+          
+            <p><img class="img-responsive" src="{{ present.Present.img_url }}"></p>
+            <div class="product-display-title">
+              <a class="display-title-link" href="/product-details/{{ present.Present.present_id }}?event_id={{ event.event_id }}">
+            <p>{{ present.Present.present_name | truncate(50) }}</p>
+            </a>
+          </div>
+            
         </div>
-
       {% endfor %}
 
       {% endif %}
-    </td>
+<!--     </td>
   </tr>
   <tr>
-    <td>
+    <td> -->
 
       {% if past %}
 
-      <h4>Past Presents</h4>
+      <h4 class="header"><span class="glyphicon glyphicon-time"></span> PAST PRESENTS</h4>
 
       {% for present in past %}
           
-        <div style="display: inline-block; width: 200px; vertical-align: top;">
-          <a href="/product-details/{{ present.Present.present_id }}?event_id={{ event.event_id }}">
-            <p>{{ present.Present.present_name }}</p>
+          <div class="product-display">
+            
+            <p><img class="img-responsive" src="{{ present.Present.img_url }}"></p>
+            <div class="product-display-title">
+          <a class="display-title-link" href="/product-details/{{ present.Present.present_id }}?event_id={{ event.event_id }}">
+            <p>{{ present.Present.present_name | truncate(50) }}</p>
             </a>
-            <img src="{{ present.Present.img_url }}">
-
+          </div>
+            
         </div>
 
       {% endfor %}
 
       {% endif %}
-    </td>
+<!--     </td>
   </tr>
   <tr>
-    <td>
+    <td> -->
 
       {% if bookmarked %}
-      <h4>Bookmarked Presents</h4>
+      <h4 class="header"><span class="glyphicon glyphicon-bookmark"></span> BOOKMARKED PRESENTS</h4>
       <div id="bookmarkedPresents">
 
       {% for present in bookmarked %}
           
-        <div style="display: inline-block; width: 200px; vertical-align: top;">
-          <a href="/product-details/{{ present.Present.present_id }}?event_id={{ event.event_id }}">
-            <p><img src="{{ present.Present.img_url }}"></p>
+        <div class="product-display">
+          
+            <p><img class="img-responsive" src="{{ present.Present.img_url }}"></p>
+            <div class="product-display-title">
+          <a class="display-title-link" href="/product-details/{{ present.Present.present_id }}?event_id={{ event.event_id }}">
             <p>{{ present.Present.present_name | truncate(50) }}</p>
             </a>
+          </div>
             
         </div>
         
       {% endfor %}
     </div>
 
+
       {% endif %}
-    </td>
+<!--     </td>
   </tr>
   <tr>
-    <td>
+    <td> -->
 
       {% if product_list %}
 
-      <h4>Suggested Presents</h4>
+      <h4 class="header"><span class="glyphicon glyphicon-bullhorn"></span> SUGGESTED PRESENTS</h4>
 
       {% for products in product_list %}
       {% set count = loop.index %}
-        <h4>{{products[0]}} <button id="product-button{{ count }}">See All</button></h4>
+        <h5 class="interest-category"><u>{{products[0]}}</u>&nbsp&nbsp&nbsp<a id="product-button{{ count }}" class="badge">+</a></h5>
       
           {% for product in products[1] %}
 
+          <div class="myImage{{ count }} product-display">
 
-
-          <div class="myImage{{ count }}" style="display: inline-block; width: 200px; vertical-align: top;">
-
-          <a href="#" data-product-id="{{ product["id"] }}" data-event-id="{{ event.event_id }}" data-status-name="bookmarked" class="bookmark-link">
-            <span id="bookmark{{ product["id"] }}" class="glyphicon glyphicon-bookmark" data-product-id="{{ product["id"] }}" style="color:red"></span>
-          </a>
-            <!-- <form action="/bookmark" method="POST">
-              <input type="hidden" name="product_id" value="{{ product["id"] }}">
-              <input type="hidden" name="event_id" value="{{ event.event_id}}">
-              <input type="hidden" name="status_name" value="bookmarked">
-              <input type="submit" value="Bookmark">
-            </form> -->
-            <p><img src="{{ product.img_url }}"></p>
-            <a href="/product-details/{{ product["id"] }}?event_id={{ event.event_id }}">
-              <p>{{ product["title"] | truncate(50) }}</p>
+            <a href="#" data-product-id="{{ product["id"] }}" data-event-id="{{ event.event_id }}" data-status-name="bookmarked" class="bookmark-link">
+              <span id="bookmark{{ product["id"] }}" class="glyphicon glyphicon-bookmark" data-product-id="{{ product["id"] }}"></span>
             </a>
+
+              <p><img class="img-responsive" src="{{ product.img_url }}"></p>
+
+              <div class="product-display-title">
+              <a class="display-title-link" href="/product-details/{{ product["id"] }}?event_id={{ event.event_id }}">
+                <p>{{ product["title"] | truncate(50) }}</p>
+              </a>
+              </div>
             
 
           </div>
@@ -122,9 +133,9 @@
       {% endfor %}
 
       {% endif %}
-    </td>
+<!--     </td>
   </tr>
-</table>
+</table> -->
 </div>
 
 

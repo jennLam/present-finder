@@ -69,8 +69,10 @@ def add_to_database(item):
     db.session.add(item)
     db.session.commit()
 
+
 @app.route("/register")
 def show_register_form():
+
     return render_template("register.html")
 
 
@@ -179,16 +181,20 @@ def show_contact_details(contact_id):
 
     sidebar_info = get_sidebar_info(g.user_id)
 
+    contact_past_presents = db.session.query(Present).join(Status).join(PresentEvent).join(Event).join(Contact).filter(Contact.contact_id == contact_id,
+                                                                                                                       Status.status_name == "past").all()
+
     return render_template("contact_details.html", contact=contact, products=sidebar_info["products"],
-                           user=g.current_user, category_list=category_list, current_events=sidebar_info["current_events"])
+                           user=g.current_user, category_list=category_list,
+                           current_events=sidebar_info["current_events"], contact_past_presents=contact_past_presents)
 
 
-@app.route("/events")
-@login_required
-def show_events():
-    """Show a list of events."""
+# @app.route("/events")
+# @login_required
+# def show_events():
+#     """Show a list of events."""
 
-    return render_template("events.html", events=g.current_user.events, user=g.current_user)
+#     return render_template("events.html", events=g.current_user.events, user=g.current_user)
 
 @app.route("/add-event", methods=["POST"])
 def add_event():
@@ -262,7 +268,7 @@ def show_event_details(event_id):
                            product_list=product_list, selected=selected, past=past,
                            bookmarked=bookmarked, products=sidebar_info["products"],
                            current_events=sidebar_info["current_events"],
-                           product_size=len(product_list), all_events=g.current_user.events)
+                           product_size=len(product_list))
 
 
 @app.route("/add-interest", methods=["POST"])
@@ -334,6 +340,24 @@ def remove_interest():
     return redirect(request.referrer)
 
 
+@app.route("/remove-interest.json", methods=["POST"])
+def remove_interest2():
+    """Remove interest."""
+
+    # Get info from form
+    contact_id = request.form.get("contact")
+    interest_id = request.form.get("interest")
+
+    print contact_id, interest_id
+
+    # Delete the intensity (connecting contact_id and interest_id)
+    Intensity.query.filter_by(contact_id=contact_id, interest_id=interest_id).delete()
+    # Commit to make changes to database
+    db.session.commit()
+
+    return jsonify({"interest": interest_id })
+
+
 @app.route("/search.json")
 def search_stuff():
 
@@ -390,13 +414,7 @@ def bookmark_exists():
     for product in existing_products:
         bookmarked.append(product[0])
 
-    # print bookmarked
-
     return jsonify({"bookmarked": bookmarked})
-
-
-
-
 
 
 @app.route("/bookmark.json", methods=["POST"])
@@ -445,7 +463,6 @@ def unbookmark_items():
     product_id = request.form.get("product")
     event_id = request.form.get("event")
     status_name = request.form.get("status")
-    # bookmark = request.form.get("bookmark")
 
     print product_id, event_id, status_name
 

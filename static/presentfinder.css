@@ -1,6 +1,28 @@
 body {
   background-image: url("/static/sativa.png");
   font-family: 'Roboto', sans-serif;
+  color: #454545;
+  font-size: 10pt;
+}
+
+a:link {
+  color: #c70039;
+}
+
+a:visited {
+    color: #c70039;
+}
+
+a:hover {
+    color: #7d7d7d;
+}
+
+a.badge:visited {
+  color: #f8f8f8;
+}
+
+a.badge:hover {
+  background-color: #c70039;
 }
 
 #pf-header {
@@ -59,23 +81,131 @@ body {
   color: #454545;
 }
 
+a .glyphicon:hover {
+  color: #7d7d7d;
+}
 
 .sidebar {
   width: 18%;
-  float: left;
+  float: right;
   padding: 10px;
-  margin-left: 3%;
-  margin-right: 0%;
+  margin-left: 0%;
+  margin-right: 3.1%;
   background-color: #f8f8f8;
   border: 0px solid red;
 }
 
+h4.header {
+  font-weight: bold;
+}
+
+h3.main-header {
+  text-align: right;
+  margin-top: 0%;
+}
+
+.main-text {
+  font-family: 'Lilita One', cursive;
+}
+
+hr { 
+    display: block;
+    margin-top: 0.5em;
+    margin-bottom: 0.5em;
+    margin-left: auto;
+    margin-right: auto;
+    border-style: inset;
+    border-width: 1px;
+    color: #3b3b3b;
+}
+
 .mainpage {
-  width: 75%;
-  float: right;
+  width: 74%;
+  float: left;
   padding: 10px;
-  margin-right: 3%;
-  margin-left: 0%;
+  margin-right: 0%;
+  margin-left: 3.1%;
   background-color: #f8f8f8;
   border: 0px solid red;
+}
+
+div.product-display {
+   display: inline-block;
+   width: 200px;
+   height: 200px;
+   vertical-align: top;
+   font-size: 90%;
+   border: 1px solid #7d7d7d;
+   background-color: #FFFFFF;
+   position: relative;
+   margin-bottom: 1%;
+   margin-left: .5%;
+}
+
+.product-display img {
+  margin-left: auto;
+  margin-right: auto;
+  border: 0px solid red;
+}
+
+.product-display-title {
+  position: absolute;
+  bottom: 0px;
+  width: 100%;
+  height: 20%;
+  border: 0px solid red;
+  text-align: center;
+  background-color: #9c9c9c;
+  color: #f8f8f8;
+  padding: 0;
+  margin: 0;
+}
+
+a.display-title-link:visited {
+  color: #f8f8f8;
+
+}
+
+a.display-title-link:link {
+  color: #f8f8f8;
+
+}
+
+a .glyphicon-bookmark {
+  color: #454545;
+  float: right;
+  position: absolute;
+  left: 90%; top: 5%;
+ /* -ms-transform: translate(-50%, -50%);
+  -webkit-transform: translate(-50%, -50%);
+  transform: translate(-50%, -50%);*/
+}
+
+h5.interest-category {
+  color: #c70039;
+}
+
+.product-detail-image {
+  display: inline-block;
+  vertical-align: middle;
+  width:40%;
+  border: 1px solid #7d7d7d;"
+}
+
+.product-detail-desc {
+  display: inline-block;
+  vertical-align: top;
+  width:59%;
+  height:100%;
+  border: 0px solid red;
+  float: right;
+  position: relative;
+}
+
+h4.product-desc-title {
+  font-family: 'Lilita One', cursive;
+}
+
+.label-default {
+  background-color: #c70039;
 }

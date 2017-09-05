@@ -2,32 +2,69 @@
 {% block content %}
 
 <div class="mainpage">
-<h4>{{ contact.fname }} {{ contact.lname }}</h4>
+<h3 class="main-header"><span class="glyphicon glyphicon-user"><span class="main-text"> {{ contact.fname|upper }} {{ contact.lname|upper }}</span></span></h3>
+<hr>
 
-<h4>Events
-  <!-- <button type="button" class="btn btn-info" data-toggle="modal" data-target="#addEvent">
-  Add Event
-  </button> -->
-</h4>
+<h4 class="header"><span class="glyphicon glyphicon-calendar"></span> EVENTS</h4>
 
 {% for event in contact.events %}
-  <a href="/event/{{ event.event_id }}">{{ event.event_name}} {{event.date.strftime("%m-%d-%Y")}}</a><br/>
+  <a href="/event/{{ event.event_id }}">{{ event.event_name}}</a><br/>
+  {{event.date.strftime("%A, %B %e")}}<br/><br/>
 {% endfor %}
 
-<h4>Interests
-  <button type="button" class="btn btn-info" data-toggle="modal" data-target="#addInterest">
-  Add Interest
-  </button>
+<h4 class="header"><span class="glyphicon glyphicon-heart"></span> INTERESTS&nbsp&nbsp&nbsp
+  <a href class="badge" data-toggle="modal" data-target="#addInterest">
+  +</a>
 </h4>
 
+<div class="contactInterests">
 {% for interest in contact.interests %}
-  <form action="/remove-interest" method="POST">
-    <input type="hidden" name="contact_id" value="{{ contact.contact_id }}">
-    <input type="hidden" name="interest_id" value="{{ interest.interest_id }}">
-    {{ interest.name }} <input type="submit" value="x">
-  </form>
-  <br/>
+
+<a id="label{{ interest.interest_id }}" class="label label-default" data-contact-id="{{ contact.contact_id }}" data-interest-id="{{ interest.interest_id}}">{{ interest.name }}&nbsp&nbspX</a>
 {% endfor %}
+<br/><br/>
+</div>
+
+<script>
+
+function showRemove(results) {
+  $("#label" + results.interest).remove()
+
+}
+
+function removeLabel() {
+  var inputs = {
+    "contact": $(this).data("contactId"),
+    "interest": $(this).data("interestId")
+
+  }
+
+  $.post("/remove-interest.json", inputs, showRemove);
+}
+$(".label-default").on("click", removeLabel);
+
+</script>
+
+{% if contact_past_presents %}
+<h4 class="header"><span class="glyphicon glyphicon-time"></span> PAST PRESENTS
+</h4>
+
+{% for present in contact_past_presents %}
+
+  <div class="product-display">
+
+      <p><img class="img-responsive" src="{{ present.img_url }}"></p>
+
+      <div class="product-display-title">
+
+        <p>{{ present.present_name | truncate(50) }}</p>
+        </div>
+        
+
+    </div>
+
+{% endfor %}
+{% endif %}
 </div>
 
 <div id="addInterest" class="modal fade" role="dialog">

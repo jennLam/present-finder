@@ -2,7 +2,7 @@
     console.log(results.data);
     var num = results.data;
 
-      $("#bookmark" + num).css("color", "blue");
+      $("#bookmark" + num).css("color", "#c70039");
       // window.location.reload();
       // $("#bookmarkedPresents").load("#bookmarkedPresents")
 
@@ -12,7 +12,7 @@
     console.log(results.data);
     var num = results.data;
    
-      $("#bookmark" + num).css("color", "red");
+      $("#bookmark" + num).css("color", "#454545");
       // window.location.reload();
       // $("#bookmarkedPresents").load()
  
@@ -53,7 +53,7 @@
 
     for (var i = 0; i < bookmarked.length; i ++) {
 
-      $("#bookmark" + bookmarked[i]).css("color", "blue");
+      $("#bookmark" + bookmarked[i]).css("color", "#c70039");
       $("#bookmark" + bookmarked[i]).parent().data("bookmark", 1);
 
     }
