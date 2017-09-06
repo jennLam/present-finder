@@ -47,7 +47,6 @@ def login_required(f):
         if g.user_id:
             return f(*args, **kwargs)
         else:
-            flash("You need to login first")
             return redirect(url_for('show_login_form'))
 
     return wrap
@@ -114,7 +113,7 @@ def process_login():
         if existing_user.password == password:
             session["user_id"] = existing_user.user_id
             session["user_name"] = existing_user.fname
-            flash("Login Successful!")
+
             return redirect("/user/" + str(session["user_id"]))
         else:
             flash("Incorrect password.")
@@ -130,9 +129,6 @@ def show_user_page(user_id):
     """Show user's homepage."""
 
     sidebar_info = get_sidebar_info(user_id)
-
-    # return render_template("home.html", user=g.current_user, products=sidebar_info["products"],
-    #                        current_events=sidebar_info["current_events"], category_list=category_list)
 
     return render_template("home.html", user=g.current_user, current_events=sidebar_info["current_events"],
                             category_list=category_list)
@@ -188,13 +184,6 @@ def show_contact_details(contact_id):
                            user=g.current_user, category_list=category_list,
                            current_events=sidebar_info["current_events"], contact_past_presents=contact_past_presents)
 
-
-# @app.route("/events")
-# @login_required
-# def show_events():
-#     """Show a list of events."""
-
-#     return render_template("events.html", events=g.current_user.events, user=g.current_user)
 
 @app.route("/add-event", methods=["POST"])
 def add_event():
@@ -384,7 +373,6 @@ def get_json(products, compact=False):
     if compact:
         return jsonify({'data': product_list, "error": None})
     else:
-        # return json.dumps(product_list)
         return json.dumps({'data': product_list, "error": None})
 
 
@@ -608,7 +596,6 @@ def process_logout():
 
     session.clear()
 
-    flash("Logout Successful.")
     return redirect("/")
 
 

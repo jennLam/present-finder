@@ -3,21 +3,16 @@
 
 
     <div class="mainpage">
-<!--       <table>
 
-        <tr>
-          <td style="width:35%;"> -->
             <div style="width:100%; padding:0; margin:0;">
             <div class="product-detail-image">
             <img src="{{ product.large_image_url }}" class="img-responsive">
           </div>
-<!--           </td>
-          <td style="vertical-align: top; width:50%;">
-            <br/><br/> -->
+
             <div class="product-detail-desc">
             <h4 class="product-desc-title">{{ product.title }}</h4>
             <hr>
-            <h5>&nbsp&nbsp&nbsp&nbsp&nbsp{{ "$%.2f"|format(product.price_and_currency[0]) }}</h5>
+            <h5>&nbsp&nbsp&nbsp&nbsp&nbsp{{ "$%.2f"|format(product.price_and_currency[0]) }} <a href="{{ product.detail_page_url}}">BUY</a></h5>
             <div class="form-group">
               <form class="navbar-form" action="/bookmark" method="POST">
                 <input type="hidden" name="product_id" value="{{ product.asin }}">
@@ -39,14 +34,7 @@
           </div>
         </div>
         <br/><br/>
- <!--          </td>
-          
-          <tr>
-            <td colspan="2">
-              <br/>
-              <br/>
-              <br/>
-              <div> -->
+
                 <h4 class="header"><span class="glyphicon glyphicon-certificate"></span> SIMILAR PRESENTS</h4>
         {% for sim_product in sim_products %}
     
@@ -69,22 +57,11 @@
   
 {% endfor %}
 </div>
- <!--            </td>
-          </tr>
-
-      </table>
- -->
-
-     
 
 
     </div>
 
     <script src="/static/bookmark.js" type="text/javascript"></script>
-
-
-
-
 
 
 {% endblock %}

@@ -1,5 +1,4 @@
 from amazon.api import AmazonAPI
-import pdb
 import os
 
 amazon = AmazonAPI(aws_key=os.environ['AMAZON_ACCESS_KEY'],
@@ -8,7 +7,6 @@ amazon = AmazonAPI(aws_key=os.environ['AMAZON_ACCESS_KEY'],
 
 
 def search(item, category):
-    # pdb.set_trace()
     products = amazon.search(Keywords=item, SearchIndex=category)
     return products
 

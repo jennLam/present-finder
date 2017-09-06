@@ -145,26 +145,19 @@ class Present(db.Model, ToDictMixin):
 
     __tablename__ = "presents"
 
-    present_id = db.Column(db.String(20), nullable=False, primary_key=True)
-    # event_id = db.Column(db.Integer, db.ForeignKey("events.event_id"))
+    present_id = db.Column(db.String(50), nullable=False, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey("users.user_id"))
     status_id = db.Column(db.Integer, db.ForeignKey("statuses.status_id"))
-    # status_name = db.Column(db.String(50))
-    present_name = db.Column(db.String(200), nullable=False)
-    url = db.Column(db.String(200))
-    img_url = db.Column(db.String(200))
+    present_name = db.Column(db.String(500), nullable=False)
+    url = db.Column(db.String(500))
+    img_url = db.Column(db.String(500))
 
-    # event = db.relationship("Event", backref=db.backref("presents"))
     user = db.relationship("User", backref=db.backref("presents"))
     status = db.relationship("Status", backref=db.backref("presents"))
     event = db.relationship("Event", secondary="presentevents", backref="presents")
 
     def __repr__(self):
         """Provide helpful representation when printed."""
-
-        # s = "<Present present_id=%s event_id=%s user_id=%s status_name=%s present_name=%s url=%s img_url=%s>"
-        # return s % (self.present_id, self.event_id, self.user_id, self.status_name,
-        #             self.present_name, self.url, self.img_url)
 
         s = "<Present present_id=%s user_id=%s status_id=%s present_name=%s url=%s img_url=%s>"
         return s % (self.present_id, self.user_id, self.status_id, self.present_name,
