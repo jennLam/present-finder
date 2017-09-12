@@ -4,6 +4,7 @@ from model import User, Contact, Event, Present, Status, PresentEvent
 from model import db, connect_to_db
 from server import app
 import schedule
+import os
 
 
 def check_date(date1, date2, email, event_name, contact_name):
@@ -15,7 +16,7 @@ def check_date(date1, date2, email, event_name, contact_name):
 def send_email(email, event_name, contact_name):
     return requests.post(
         "https://api.mailgun.net/v3/sandbox6cfd6b1c827243528fca133a8e176106.mailgun.org/messages",
-        auth=("api", "key-99d2e4b54c0fbed991048736a555b03b"),
+        auth=("api", os.environ["MAILGUN_API_KEY"]),
         data={"from": "Present Finder <postmaster@sandbox6cfd6b1c827243528fca133a8e176106.mailgun.org>",
               "to": "User <" + email + ">",
               "subject": "You have an event coming up!",
