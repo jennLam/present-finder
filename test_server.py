@@ -63,13 +63,9 @@ class ServerTestsDatabase(unittest.TestCase):
                                "notification": True},
                          follow_redirects=True)
 
-        # import pdb; pdb.set_trace()
-
         new_user = User.query.filter_by(username="bryan").first()
-        
-        self.assertIsNotNone(new_user)
 
-        # self.assertIn("User successfully added.", result.data)
+        self.assertIsNotNone(new_user)
 
     def test_login(self):
         result = self.client.post("/login",

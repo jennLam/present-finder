@@ -3,17 +3,16 @@ from flask_debugtoolbar import DebugToolbarExtension
 from jinja2 import StrictUndefined
 from model import User, Contact, Interest, Intensity, Event, Present, PresentEvent, Status
 from model import connect_to_db, db
-from datetime import datetime
-from sqlalchemy import extract
 from functools import wraps
 import json
 import amazonapi
-from resource import get_recent_events, get_sidebar_info, get_events_by_month
+from resource import get_sidebar_info, get_events_by_month
+import os
 
 app = Flask(__name__)
 
 # Required to use Flask sessions and the debug toolbar
-app.secret_key = "ABC123"
+app.secret_key = os.environ.get("FLASK_SECRET_KEY")
 
 # Normally, if you use an undefined variable in Jinja2, it fails
 # silently. This is horrible. Fix this so that, instead, it raises an
@@ -131,7 +130,7 @@ def show_user_page(user_id):
     sidebar_info = get_sidebar_info(user_id)
 
     return render_template("home.html", user=g.current_user, current_events=sidebar_info["current_events"],
-                            category_list=category_list)
+                           category_list=category_list)
 
 
 def check_and_add(existing_item, item):
@@ -344,7 +343,7 @@ def remove_interest2():
     # Commit to make changes to database
     db.session.commit()
 
-    return jsonify({"interest": interest_id })
+    return jsonify({"interest": interest_id})
 
 
 @app.route("/search.json")
@@ -414,12 +413,6 @@ def bookmark_items():
     image = request.form.get("image")
     url = request.form.get("url")
     title = request.form.get("title")
-    # bookmark = request.form.get("bookmark")
-
-    print product_id, event_id, status_name
-
-    # Get product from amazon api through product_id
-    # product = amazonapi.lookup(product_id)
 
     # Get product from database
     existing_product = db.session.query(Present.present_id,

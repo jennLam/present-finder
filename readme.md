@@ -1,7 +1,9 @@
 # Present Finder
+
+![alt text](https://i.imgur.com/c4Ihhdc.png "Present Finder" align="right")
 Present Finder is a fullstack web application that helps users find presents for events based on their contacts' interests. When the user enters a contact's events and interests, a list of suggested presents will be generated. The user can bookmark presents, get notifications for upcoming events, see past presents they have given someone, and more!
 
-![alt text](https://i.imgur.com/c4Ihhdc.png "Present Finder")
+
 # Features
 
   - Notifications for upcoming events

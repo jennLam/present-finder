@@ -204,6 +204,7 @@ def example_data():
     db.session.add_all([jane, bob, dog, dog_intensity, bob_bday, selected, past, bookmarked, bob_bday_present])
     db.session.commit()
 
+
 def init_app():
     # So that we can use Flask-SQLAlchemy, we'll make a Flask app.
     from flask import Flask
@@ -225,13 +226,5 @@ def connect_to_db(app, db_uri="postgres:///presents"):
 
 
 if __name__ == "__main__":
-    # As a convenience, if we run this module interactively, it will leave
-    # you in a state of being able to work with the database directly.
 
-    # So that we can use Flask-SQLAlchemy, we'll make a Flask app.
-    from flask import Flask
-
-    app = Flask(__name__)
-
-    connect_to_db(app)
-    print "Connected to DB."
+    init_app()
