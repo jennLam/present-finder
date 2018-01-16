@@ -36,7 +36,7 @@ class User(db.Model, ToDictMixin):
     lname = db.Column(db.String(25), nullable=False)
     username = db.Column(db.String(50), nullable=False)
     email = db.Column(db.String(100), nullable=False)
-    password = db.Column(db.String(50), nullable=False)
+    password = db.Column(db.String(200), nullable=False)
     notification = db.Column(db.Boolean, nullable=False)
 
     events = db.relationship("Event", secondary="contacts", backref="user")

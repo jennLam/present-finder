@@ -59,7 +59,7 @@ def index():
     """Homepage."""
 
     if g.user_id:
-        return redirect("/user/" + str(g.user_id))
+        return redirect("/home")
 
     return render_template("homepage.html")
 
@@ -118,7 +118,7 @@ def process_login():
             session["user_id"] = existing_user.user_id
             session["user_name"] = existing_user.fname
 
-            return redirect("/user/" + str(session["user_id"]))
+            return redirect("/home")
         else:
             flash("Incorrect password.")
     else:
@@ -127,12 +127,12 @@ def process_login():
     return redirect(request.referrer)
 
 
-@app.route("/user/<user_id>")
+@app.route("/home")
 @login_required
-def show_user_page(user_id):
+def show_user_page():
     """Show user's homepage."""
 
-    sidebar_info = get_sidebar_info(user_id)
+    sidebar_info = get_sidebar_info(g.user_id)
 
     return render_template("home.html", user=g.current_user, current_events=sidebar_info["current_events"],
                            category_list=category_list)
