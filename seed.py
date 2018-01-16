@@ -3,7 +3,7 @@
 from sqlalchemy import func
 from model import User, Contact, Interest, Event, Present, Intensity, Status
 from model import connect_to_db, db
-from server import app
+from server import app, bcrypt
 from datetime import datetime
 from update_pkey_seqs import update_pkey_seqs
 
@@ -20,8 +20,10 @@ def load_users():
         line = line.rstrip()
         user_id, fname, lname, username, email, password, notification = line.split(",")
 
+        hashed_pw = bcrypt.generate_password_hash(password)
+
         user = User(user_id=user_id, fname=fname, lname=lname, username=username,
-                    email=email, password=password, notification=notification)
+                    email=email, password=hashed_pw, notification=notification)
 
         # We need to add to the session or it won't be stored
         db.session.add(user)
