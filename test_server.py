@@ -1,7 +1,7 @@
 import unittest
 from server import app
 from model import db, connect_to_db, example_data, User, Contact, Event
-from seed import set_val_user_id, set_val_contact_id, set_val_event_id
+from update_pkey_seqs import update_pkey_seqs
 
 
 class ServerTests(unittest.TestCase):
@@ -13,15 +13,11 @@ class ServerTests(unittest.TestCase):
 
     def test_index(self):
         result = self.client.get("/")
-        self.assertIn("<h1>This is the homepage!</h1>", result.data)
+        self.assertIn("<p>Welcome to Present Finder!</p>", result.data)
 
     def test_register(self):
         result = self.client.get("/register")
-        self.assertIn("Register", result.data)
-
-    def test_login(self):
-        result = self.client.get("/login")
-        self.assertIn("Login", result.data)
+        self.assertIn("<p>Register for an account.</p>", result.data)
 
 
 class ServerTestsDatabase(unittest.TestCase):
@@ -43,9 +39,7 @@ class ServerTestsDatabase(unittest.TestCase):
 
         db.create_all()
         example_data()
-        set_val_user_id()
-        set_val_contact_id()
-        set_val_event_id()
+        update_pkey_seqs()
 
     def tearDown(self):
         """Do after each test."""
