@@ -174,6 +174,7 @@ def add_contact():
 
 
 @app.route("/contact/<contact_id>")
+@login_required
 def show_contact_details(contact_id):
     """Show contact details page."""
 
@@ -184,12 +185,18 @@ def show_contact_details(contact_id):
     contact_past_presents = db.session.query(Present).join(Status).join(PresentEvent).join(Event).join(Contact).filter(Contact.contact_id == contact_id,
                                                                                                                        Status.status_name == "past").all()
 
-    return render_template("contact_details.html", contact=contact, products=sidebar_info["products"],
-                           user=g.current_user, category_list=category_list,
-                           current_events=sidebar_info["current_events"], contact_past_presents=contact_past_presents)
+    if contact in g.current_user.contacts:
+
+        return render_template("contact_details.html", contact=contact, products=sidebar_info["products"],
+                               user=g.current_user, category_list=category_list,
+                               current_events=sidebar_info["current_events"], contact_past_presents=contact_past_presents)
+    else:
+        flash("That is not your contact.")
+        return redirect("/home")
 
 
 @app.route("/add-event", methods=["POST"])
+@login_required
 def add_event():
     """Add event to database."""
 
@@ -212,6 +219,7 @@ def add_event():
 
 
 @app.route("/edit-event", methods=["POST"])
+@login_required
 def edit_event():
     """Edit event in database."""
 
@@ -235,6 +243,7 @@ def edit_event():
 
 
 @app.route("/event/<event_id>")
+@login_required
 def show_event_details(event_id):
     """Show event details."""
 
@@ -265,6 +274,7 @@ def show_event_details(event_id):
 
 
 @app.route("/add-interest", methods=["POST"])
+@login_required
 def add_interest():
     """Add interests to database."""
 
@@ -318,6 +328,7 @@ def add_interest():
 
 
 @app.route("/remove-interest", methods=["POST"])
+@login_required
 def remove_interest():
     """Remove interest."""
 
@@ -334,6 +345,7 @@ def remove_interest():
 
 
 @app.route("/remove-interest.json", methods=["POST"])
+@login_required
 def remove_interest2():
     """Remove interest."""
 
@@ -352,6 +364,7 @@ def remove_interest2():
 
 
 @app.route("/search.json")
+@login_required
 def search_stuff():
 
     name = request.args.get("text")
@@ -381,6 +394,7 @@ def get_json(products, compact=False):
 
 
 @app.route("/product.json")
+@login_required
 def check_bookmark():
     product_id = request.form.get("product")
     event_id = request.form.get("event")
@@ -396,6 +410,7 @@ def check_bookmark():
 
 
 @app.route("/exists.json")
+@login_required
 def bookmark_exists():
     event_id = request.args.get("event")
     status_name = request.args.get("status")
@@ -410,6 +425,7 @@ def bookmark_exists():
 
 
 @app.route("/bookmark.json", methods=["POST"])
+@login_required
 def bookmark_items():
 
     product_id = request.form.get("product")
@@ -450,6 +466,7 @@ def bookmark_items():
 
 
 @app.route("/unbookmark.json", methods=["POST"])
+@login_required
 def unbookmark_items():
 
     product_id = request.form.get("product")
@@ -473,6 +490,7 @@ def unbookmark_items():
 
 
 @app.route("/bookmark", methods=["POST"])
+@login_required
 def bookmark_product():
     """Add products the user bookmarks to presents table in database."""
 
@@ -512,6 +530,7 @@ def bookmark_product():
 
 
 @app.route("/product-details/<product_id>")
+@login_required
 def show_product(product_id):
 
     event_id = request.args.get("event_id")
@@ -528,6 +547,7 @@ def show_product(product_id):
 
 
 @app.route('/event-nums.json')
+@login_required
 def num_of_events_data():
     """Return data about number of events."""
 
