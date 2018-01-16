@@ -266,11 +266,17 @@ def show_event_details(event_id):
         interest_full_name = interest.name + " " + interest.category
         product_list.append((interest_full_name, info["data"]))
 
-    return render_template("event_details.html", event=event, user=g.current_user,
-                           product_list=product_list, selected=selected, past=past,
-                           bookmarked=bookmarked, products=sidebar_info["products"],
-                           current_events=sidebar_info["current_events"],
-                           product_size=len(product_list))
+    if event in g.current_user.events:
+
+        return render_template("event_details.html", event=event, user=g.current_user,
+                               product_list=product_list, selected=selected, past=past,
+                               bookmarked=bookmarked, products=sidebar_info["products"],
+                               current_events=sidebar_info["current_events"],
+                               product_size=len(product_list))
+
+    else:
+        flash("This is not your event.")
+        return redirect("/home")
 
 
 @app.route("/add-interest", methods=["POST"])
