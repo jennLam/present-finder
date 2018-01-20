@@ -36,6 +36,7 @@ class User(db.Model, ToDictMixin):
     lname = db.Column(db.String(25), nullable=False)
     username = db.Column(db.String(50), nullable=False)
     email = db.Column(db.String(100), nullable=False)
+    phone_number = db.Column(db.String(25), nullable=False)
     password = db.Column(db.String(200), nullable=False)
     notification = db.Column(db.Boolean, nullable=False)
 
@@ -44,9 +45,9 @@ class User(db.Model, ToDictMixin):
     def __repr__(self):
         """Provide helpful representation when printed."""
 
-        s = "<User user_id=%s fname=%s lname=%s username=%s email=%s password=%s notification=%s>"
+        s = "<User user_id=%s fname=%s lname=%s username=%s email=%s phone_number=%s password=%s notification=%s>"
         return s % (self.user_id, self.fname, self.lname, self.username,
-                    self.email, self.password, self.notification)
+                    self.email, self.phone_number, self.password, self.notification)
 
 
 class Contact(db.Model, ToDictMixin):

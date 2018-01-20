@@ -18,12 +18,13 @@ def load_users():
     # Read user_data file and insert datat
     for line in open("seed_data/user_data"):
         line = line.rstrip()
-        user_id, fname, lname, username, email, password, notification = line.split(",")
+        user_id, fname, lname, username, email, phone_number, password, notification = line.split(",")
 
         hashed_pw = bcrypt.generate_password_hash(password)
 
         user = User(user_id=user_id, fname=fname, lname=lname, username=username,
-                    email=email, password=hashed_pw, notification=notification)
+                    email=email, phone_number=phone_number, password=hashed_pw,
+                    notification=notification)
 
         # We need to add to the session or it won't be stored
         db.session.add(user)

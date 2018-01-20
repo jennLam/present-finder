@@ -86,6 +86,7 @@ def process_register_info():
     lname = request.form.get("lname")
     uname = request.form.get("uname")
     email = request.form.get("email")
+    phone = request.form.get("phone")
     password = request.form.get("password")
     notification = request.form.get("notification")
 
@@ -95,7 +96,7 @@ def process_register_info():
     existing_user = User.query.filter_by(username=uname).first()
 
     # Make new user
-    new_user = User(fname=fname, lname=lname, username=uname, email=email,
+    new_user = User(fname=fname, lname=lname, username=uname, email=email, phone_number=phone,
                     password=hashed_pw, notification=notification)
 
     # Check database, add to database

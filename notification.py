@@ -4,23 +4,35 @@ from model import User, Contact, Event, Present, Status, PresentEvent
 from model import db, connect_to_db
 from server import app
 import schedule
+from twilio.rest import Client
 import os
 
 
-def check_date(date1, date2, email, event_name, contact_name):
-    days = date1.day - date2.day
+def check_date(date1, date2, phone_number, event_name, contact_name):
 
-    if days == 7:
-        send_email(event_name, contact_name)
+    if date1.month == date2.month:
+        days = date1.day - date2.day
 
-def send_email(email, event_name, contact_name):
-    return requests.post(
-        "https://api.mailgun.net/v3/sandbox6cfd6b1c827243528fca133a8e176106.mailgun.org/messages",
-        auth=("api", os.environ["MAILGUN_API_KEY"]),
-        data={"from": "Present Finder <postmaster@sandbox6cfd6b1c827243528fca133a8e176106.mailgun.org>",
-              "to": "User <" + email + ">",
-              "subject": "You have an event coming up!",
-              "html": "It's " + contact_name + "'s " + event_name + " in a week! Find a present <a href='http://localhost:5000'>now</a>!"})
+        if days == 7:
+            send_sms(phone_number, event_name, contact_name)
+
+
+def send_sms(phone_number, event_name, contact_name):
+
+    account_sid = os.environ.get("ACCOUNT_SID")
+    auth_token = os.environ.get("AUTH_TOKEN")
+
+    client = Client(account_sid, auth_token)
+
+    body_message = "It's " + contact_name + "'s " + event_name + " in a week! Find a present now!"
+
+    message = client.messages.create(
+        to=phone_number,
+        from_=os.environ.get("TWILIO_NUM"),
+        body=body_message)
+
+    print message.sid
+
 
 def job():
 
@@ -28,6 +40,7 @@ def job():
 
     events = db.session.query(User.notification,
                               User.email,
+                              User.phone_number,
                               Contact.fname,
                               Contact.lname,
                               Event.event_name,
@@ -35,21 +48,26 @@ def job():
 
     today_date = datetime.now()
 
+    print "hello there"
+
     for event in events:
-        check_date(event.date, today_date, event.email, event.event_name, event.fname)
+        print event
+
+        phone_number = "+1" + event.phone_number.replace("-", "")
+        check_date(event.date, today_date, phone_number, event.event_name, event.fname)
 
     presents = db.session.query(Present.present_id,
                                 Status.status_name,
                                 Event.date).join(Status).join(PresentEvent).join(Event).filter(Status.status_name == "selected").all()
 
-    # for present in presents:
-    #     if present.date < today_date:
-    #         pres = Present.query.get(present.Present.present_id)
-    #         pres.status_id = 2
-    #         db.session.commit()
+    for present in presents:
+        if present.date < today_date:
+            pres = Present.query.get(present.Present.present_id)
+            pres.status_id = 2
+            db.session.commit()
 
 
-schedule.every().day.at("11:54").do(job)
+schedule.every().day.at("08:00").do(job)
 
 while True:
     schedule.run_pending()
