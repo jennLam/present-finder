@@ -9,6 +9,7 @@ import os
 
 
 def check_date(date1, date2, phone_number, event_name, contact_name):
+    """Compare two dates to figure out if text notification will be sent."""
 
     if date1.month == date2.month:
         days = date1.day - date2.day
@@ -18,6 +19,7 @@ def check_date(date1, date2, phone_number, event_name, contact_name):
 
 
 def send_sms(phone_number, event_name, contact_name):
+    """Send text reminder."""
 
     account_sid = os.environ.get("ACCOUNT_SID")
     auth_token = os.environ.get("AUTH_TOKEN")
@@ -35,6 +37,7 @@ def send_sms(phone_number, event_name, contact_name):
 
 
 def job():
+    """Daily to check events and presents in database."""
 
     connect_to_db(app)
 
@@ -47,8 +50,6 @@ def job():
                               Event.date).join(Contact).join(Event).filter(User.notification == True).all()
 
     today_date = datetime.now()
-
-    print "hello there"
 
     for event in events:
         print event
